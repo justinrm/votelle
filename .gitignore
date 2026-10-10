@@ -22,10 +22,10 @@ htmlcov/
 .cache/
 
 # User data and derived outputs
-data/
-cache/
-runs/
-checkpoints/
+/data/
+/cache/
+/runs/
+/checkpoints/
 
 # Generated fixture tones (tests/fixtures/build.py --dest)
 tests/fixtures/pilot/
