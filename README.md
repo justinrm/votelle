@@ -1,6 +1,19 @@
 # music_pref
 
-Offline data foundation for a music-preference research library. Protocol v0.1.
+Votelle is an open-source research project on whether a small, adaptable model can learn one person’s musical taste and creative intent from comparative listening judgments. Generating music is becoming easy. Choosing which result matches a particular artistic vision is still slow, manual, and personal. Most evaluators score general quality, technical traits, or text-to-audio similarity. Votelle studies the finer preferences that make one composition feel right to a particular listener or creator.
+
+The question is whether relatively little human feedback is enough to recommend useful candidates. Success is a useful, scientifically defensible method, including an honest negative result. This repository is the offline foundation for that experiment: protocol v0.1.
+
+## Goals
+
+1. **Learn individual taste** from comparative listening judgments.
+2. **Score creative intent**: how closely music matches a creator’s description, mood, instrumentation, atmosphere, and direction.
+3. **Keep preference and instruction adherence separate.** A piece can follow the brief and still feel wrong, or feel right while missing the brief.
+4. **Reduce repeated listening** by helping a creator rank candidates, with the human keeping artistic authority.
+5. **Sit beside generators** as a modular evaluation layer for existing and future music systems.
+6. **Stay reproducible**: compact rankers, multimodal audio representations, low-data personalization, honest uncertainty, documented data rights, and comparisons against established methods.
+
+The longer aim is a personalized evaluation companion: compare candidates, notice recurring aesthetic preferences, and flag departures from intent. The listener’s judgment stays the authority. The system makes that judgment easier to apply across a large set of candidates.
 
 **Fixture success is not evidence of preference prediction.** The tones under `tests/fixtures/` are generated test signals, not music and not human judgments. A passing test only means the manifests, rights checks, splits, and dummy encoder behave as specified.
 
