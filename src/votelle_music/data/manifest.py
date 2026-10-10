@@ -8,11 +8,11 @@ from pathlib import Path
 
 from pydantic import BaseModel, ValidationError
 
-from music_pref.audio.measure import is_digital_silence
-from music_pref.audio.prepare import crop_samples, file_sha256, pcm_hash, prepare_excerpt, read_audio
-from music_pref.data.paths import resolve_under_root
-from music_pref.data.rights import check_rights
-from music_pref.schemas import (
+from votelle_music.audio.measure import is_digital_silence
+from votelle_music.audio.prepare import crop_samples, file_sha256, pcm_hash, prepare_excerpt, read_audio
+from votelle_music.data.paths import resolve_under_root
+from votelle_music.data.rights import check_rights
+from votelle_music.schemas import (
     SCHEMA_VERSION,
     Asset,
     Brief,
@@ -152,7 +152,7 @@ def _duplicate_issues(records: list, id_fn, field: str) -> list[ValidationIssue]
 
 
 def load_dataset(root: Path) -> tuple[Dataset, list[ValidationIssue]]:
-    from music_pref.schemas import RightsRecord
+    from votelle_music.schemas import RightsRecord
 
     issues: list[ValidationIssue] = []
     loaded: dict[str, list] = {}

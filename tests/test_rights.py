@@ -1,6 +1,6 @@
 import json
 
-from music_pref.data.manifest import load_config, validate
+from votelle_music.data.manifest import load_config, validate
 from tests.fixtures.build import build_dataset, write_config
 
 

@@ -10,8 +10,8 @@ from pathlib import Path
 
 import numpy as np
 
-from music_pref.features.base import FeatureError
-from music_pref.schemas import canonical_bytes, sha256_hex
+from votelle_music.features.base import FeatureError
+from votelle_music.schemas import canonical_bytes, sha256_hex
 
 
 def feature_cache_key(

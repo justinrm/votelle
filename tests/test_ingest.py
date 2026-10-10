@@ -8,12 +8,12 @@ import numpy as np
 import pytest
 import soundfile as sf
 
-from music_pref.audio.loudness import integrated_loudness
-from music_pref.audio.prepare import file_sha256, pcm_hash, preprocessing_document, read_audio
-from music_pref.cli import main
-from music_pref.data.ingest import IngestRequest, ingest, prepare_clip
-from music_pref.data.manifest import load_config, load_dataset, validate
-from music_pref.schemas import SCHEMA_VERSION, MusicPrefError, RightsRecord, canonical_bytes, sha256_hex
+from votelle_music.audio.loudness import integrated_loudness
+from votelle_music.audio.prepare import file_sha256, pcm_hash, preprocessing_document, read_audio
+from votelle_music.cli import main
+from votelle_music.data.ingest import IngestRequest, ingest, prepare_clip
+from votelle_music.data.manifest import load_config, load_dataset, validate
+from votelle_music.schemas import SCHEMA_VERSION, MusicPrefError, RightsRecord, canonical_bytes, sha256_hex
 from tests.fixtures.build import dump_jsonl, write_config
 
 DISQUIET = "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Disquiet.mp3"
@@ -442,7 +442,21 @@ def test_prepare_records_qc_and_admits_only_a_level_match(tmp_path):
     assert canonical_bytes(json.loads((root / "qc" / "clip-disquiet.json").read_text(encoding="utf-8"))) == canonical_bytes(
         json.loads((other / "qc" / "clip-disquiet.json").read_text(encoding="utf-8"))
     )
-    assert file_sha256(prepared) == file_sha256(other / other_qc.prepared_relative_path)
+    other_prepared = other / other_qc.prepared_relative_path
+    left, left_rate = sf.read(prepared, always_2d=True, dtype="float32")
+    right, right_rate = sf.read(other_prepared, always_2d=True, dtype="float32")
+    left_info, right_info = sf.info(prepared), sf.info(other_prepared)
+    assert np.array_equal(left, right)
+    assert left_info.frames == right_info.frames == left.shape[0] == 480_000
+    assert left_info.samplerate == right_info.samplerate == left_rate == right_rate == 48000
+    assert left_info.channels == right_info.channels == left.shape[1] == 1
+    assert left_info.subtype == right_info.subtype == "FLOAT"
+    assert qc.prepared_pcm_sha256 == other_qc.prepared_pcm_sha256 == pcm_hash(left[:, 0])
+    assert qc.preprocessing_id == other_qc.preprocessing_id == "gain_lufs_v1"
+    assert qc.preprocessing_sha256 == other_qc.preprocessing_sha256
+    # libsndfile stamps the WAV PEAK chunk, so container bytes are provenance only.
+    assert file_sha256(prepared) != qc.prepared_pcm_sha256
+    assert file_sha256(other_prepared) != other_qc.prepared_pcm_sha256
 
 
 def test_loudness_mismatch_stays_out_of_the_primary_condition(tmp_path):

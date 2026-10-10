@@ -18,10 +18,10 @@ This package contains research and specifications, not an implemented or validat
 |---|---|
 | [01_Executive_Feasibility_Assessment.md](01_Executive_Feasibility_Assessment.md) | Recommendation, project positioning, final decision answers |
 | [02_Literature_and_Competitive_Landscape.md](02_Literature_and_Competitive_Landscape.md) | Prior art, conflicting findings, build versus contribute |
-| [03_Audio_Encoder_and_Architecture_Analysis.md](03_Audio_Encoder_and_Architecture_Analysis.md) | Encoder selection, mathematical architecture, model sizes |
-| [04_Dataset_and_Human_Feedback_Strategy.md](04_Dataset_and_Human_Feedback_Strategy.md) | Data rights policy, acquisition, annotation and dataset sizes |
-| [05_Training_and_Evaluation_Research_Plan.md](05_Training_and_Evaluation_Research_Plan.md) | Splits, experiments, calibration, statistical claims and success gates |
-| [06_MVP_Technical_Specification.md](06_MVP_Technical_Specification.md) | Product scope, data and inference contracts, operational requirements |
+| [03_Audio_Encoder_and_Architecture_Analysis.md](../../research/03_Audio_Encoder_and_Architecture_Analysis.md) | Encoder selection, mathematical architecture, model sizes |
+| [04_Dataset_and_Human_Feedback_Strategy.md](../../research/04_Dataset_and_Human_Feedback_Strategy.md) | Data rights policy, acquisition, annotation and dataset sizes |
+| [05_Training_and_Evaluation_Research_Plan.md](../../research/05_Training_and_Evaluation_Research_Plan.md) | Splits, experiments, calibration, statistical claims and success gates |
+| [06_MVP_Technical_Specification.md](../../research/06_MVP_Technical_Specification.md) | Product scope, data and inference contracts, operational requirements |
 | [07_Development_Roadmap_and_Budget.md](07_Development_Roadmap_and_Budget.md) | Schedule assumptions, hardware estimates, spending scenarios |
 | [08_Cursor_Agent_Implementation_Handoff.md](08_Cursor_Agent_Implementation_Handoff.md) | Repository boundaries, implementation sequence and first-session prompt |
 | [09_Research_Risks_and_Open_Questions.md](09_Research_Risks_and_Open_Questions.md) | Uncertainties, limitations and reasons to pivot |

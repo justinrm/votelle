@@ -6,8 +6,8 @@ import numpy as np
 import pytest
 import soundfile as sf
 
-from music_pref.audio.loudness import integrated_loudness
-from music_pref.audio.prepare import (
+from votelle_music.audio.loudness import integrated_loudness
+from votelle_music.audio.prepare import (
     INTEGRATED_TOLERANCE_LU,
     file_sha256,
     pcm_hash,
@@ -16,10 +16,10 @@ from music_pref.audio.prepare import (
     read_audio,
     waveform_for_encoder,
 )
-from music_pref.data.manifest import load_config, validate
-from music_pref.features.cache import feature_cache_key
-from music_pref.features.dummy import DummyEncoder
-from music_pref.schemas import MusicPrefError, canonical_bytes, sha256_hex
+from votelle_music.data.manifest import load_config, validate
+from votelle_music.features.cache import feature_cache_key
+from votelle_music.features.dummy import DummyEncoder
+from votelle_music.schemas import MusicPrefError, canonical_bytes, sha256_hex
 from tests.fixtures.build import build_dataset, foundation_config, write_config
 
 RATE = 48000

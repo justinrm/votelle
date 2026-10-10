@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from music_pref.schemas import Asset, Brief, Clip, Judgment, canonical_bytes, sha256_hex
+from votelle_music.schemas import Asset, Brief, Clip, Judgment, canonical_bytes, sha256_hex
 
 
 @dataclass(frozen=True)

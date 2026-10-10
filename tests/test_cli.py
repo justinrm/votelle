@@ -1,4 +1,4 @@
-from music_pref.cli import main
+from votelle_music.cli import main
 from tests.fixtures.build import build_dataset, write_config
 
 

@@ -1,135 +1,158 @@
 # Graph Report - Model  (2026-10-10)
 
 ## Corpus Check
-- 54 files · ~38,270 words
+- 48 files · ~30,182 words
 - Verdict: corpus is large enough that graph structure adds value.
+- Unclassified: 6 file(s) not represented in the graph (top: (none) 5, .lock 1)
 
 ## Summary
-- 436 nodes · 1533 edges · 17 communities (9 shown, 8 thin omitted)
-- Extraction: 90% EXTRACTED · 10% INFERRED · 0% AMBIGUOUS · INFERRED: 154 edges (avg confidence: 0.91)
+- 419 nodes · 1320 edges · 26 communities (17 shown, 9 thin omitted)
+- Extraction: 92% EXTRACTED · 8% INFERRED · 0% AMBIGUOUS · INFERRED: 103 edges (avg confidence: 0.94)
 - Token cost: 0 input · 0 output
 
+## Graph Freshness
+- Built from commit: `f3d91128`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
+
 ## Community Hubs (Navigation)
-- Feasibility and Literature
-- Audio Loudness Meter
-- Rights and Identity Splits
-- Intake and Audition Gain
-- Encoder Policy and Agent Rules
-- Fixture Dataset Builder
-- Encoder Protocol and Features
-- Ingestion Tests
-- Scorer and Calibration Policy
-- Project Overview
-- Package Metadata
+- manifest.py
+- build_dataset
+- 06 — MVP Technical Specification
+- test_audition.py
+- base.py
+- ingest
+- MusicPrefError
+- Status
+- 03 — Audio Encoder and Architecture Analysis
+- 05 — Training and Evaluation Research Plan
+- 04 — Dataset and Human Feedback Strategy
+- 03 — CLAP Encoder Feasibility & Benchmark Handoff
+- research/README.md
+- 01 — Data Feasibility & Rights Audit
+- 02 — P0 Dataset & Listening Protocol
+- _UnionFind
+- 0003 — P-01 real-audio ingestion
+- Votelle
+- FIRST_PARTY_DECLARATION.md
+- votelle-music
 
 ## God Nodes (most connected - your core abstractions)
-1. `MusicPrefError` - 51 edges
+1. `MusicPrefError` - 52 edges
 2. `build_dataset()` - 45 edges
 3. `ingest()` - 42 edges
 4. `write_config()` - 30 edges
-5. `prepare_excerpt()` - 30 edges
-6. `validate()` - 28 edges
+5. `prepare_excerpt()` - 29 edges
+6. `validate()` - 29 edges
 7. `load_dataset()` - 25 edges
 8. `canonical_bytes()` - 24 edges
 9. `load_config()` - 23 edges
-10. `prepare_clip()` - 22 edges
+10. `prepare_clip()` - 21 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Dummy Encoder (fixture-v1)` --implements--> `AudioTextEncoder`  [INFERRED]
-  docs/decisions/0001-foundation-choices.md → src/music_pref/features/base.py
-- `Dummy Encoder` --semantically_similar_to--> `Dummy Encoder (fixture-v1)`  [INFERRED] [semantically similar]
-  AGENTS.md → docs/decisions/0001-foundation-choices.md
-- `Ten-Second Excerpt Preparation` --semantically_similar_to--> `10-Second Excerpt Protocol`  [INFERRED] [semantically similar]
-  Initial Research Package/02_P0_Dataset_and_Listening_Protocol.md → docs/decisions/0001-foundation-choices.md
-- `CLAP Encoder` --references--> `AudioTextEncoder`  [EXTRACTED]
-  docs/research/03_Audio_Encoder_and_Architecture_Analysis.md → src/music_pref/features/base.py
-- `Dummy Encoder (fixture-v1)` --implements--> `DummyEncoder`  [EXTRACTED]
-  docs/decisions/0001-foundation-choices.md → src/music_pref/features/dummy.py
+- `Preparation` --references--> `prepare_excerpt()`  [INFERRED]
+  docs/decisions/0003-p01-ingestion.md → src/votelle_music/audio/prepare.py
+- `Files` --references--> `ingest()`  [INFERRED]
+  docs/decisions/0003-p01-ingestion.md → src/votelle_music/data/ingest.py
+- `CLAP handoff` --references--> `waveform_for_encoder()`  [INFERRED]
+  docs/decisions/0002-audition-normalization.md → src/votelle_music/audio/prepare.py
+- `0001 — Foundation choices` --references--> `dataset_root()`  [INFERRED]
+  docs/decisions/0001-foundation-choices.md → src/votelle_music/data/manifest.py
+- `Commands` --references--> `validate()`  [INFERRED]
+  README.md → src/votelle_music/data/manifest.py
 
 ## Import Cycles
 - None detected.
 
-## Hyperedges (group relationships)
-- **Data Pipeline Foundation** — rights_policy, identity_splits, ten_second_excerpt, gain_lufs_v1, p01_intake [INFERRED 0.85]
-- **Encoder Selection Decisions** — clap_encoder, fused_clap, unfused_clap, dummy_encoder [INFERRED 0.85]
-- **Evaluation Framework** — preference_vs_adherence, pairwise_comparisons, calibration_gates, initial_research_package_02_p0_dataset_and_listening_protocol_p0_listening_protocol, initial_research_package_02_p0_dataset_and_listening_protocol_brief_matched_retrieval [INFERRED 0.85]
-- **Scorer Architecture Choices** — linear_pairwise_scorer, neural_mlp_alternative, null_result_valid [INFERRED 0.85]
-- **Separate brief adherence from personal preference** — docs_research_04_dataset_and_human_feedback_strategy_dual_criterion_annotation, docs_research_06_mvp_technical_specification_dual_target_scoring, docs_research_09_research_risks_and_open_questions_adherence_preference_disagreement_benchmark, docs_research_02_literature_and_competitive_landscape_aime [INFERRED 0.85]
-- **Offline data foundation first session** — docs_research_01_executive_feasibility_assessment_offline_first_session, docs_research_06_mvp_technical_specification_jsonl_manifest_schemas, docs_research_08_cursor_agent_implementation_handoff_offline_foundation_scope, docs_research_08_cursor_agent_implementation_handoff_leakage_safe_component_splits, docs_research_08_cursor_agent_implementation_handoff_dummy_encoder_and_feature_cache, docs_research_08_cursor_agent_implementation_handoff_rights_policy_profiles [EXTRACTED 1.00]
-- **Unknown permission blocks release and training** — docs_research_04_dataset_and_human_feedback_strategy_rights_lane_policy, docs_research_04_dataset_and_human_feedback_strategy_acquisition_procedure, docs_research_04_dataset_and_human_feedback_strategy_suno_output_exclusion, docs_research_08_cursor_agent_implementation_handoff_rights_policy_profiles, docs_research_06_mvp_technical_specification_jsonl_manifest_schemas [INFERRED 0.95]
-- **P0 Pilot of 20 Families and 60 Clips** — initial_research_package_02_p0_dataset_and_listening_protocol_p0_listening_protocol, initial_research_package_02_p0_dataset_and_listening_protocol_brief_matched_retrieval, initial_research_package_02_p0_dataset_and_listening_protocol_ten_second_excerpt_preparation, initial_research_package_02_p0_dataset_and_listening_protocol_label_schema, initial_research_package_02_p0_dataset_and_listening_protocol_identity_independence, initial_research_package_02_p0_dataset_and_listening_protocol_repeatability_pause_trigger, initial_research_package_02_p0_dataset_and_listening_protocol_one_musician_collection [EXTRACTED 1.00]
-- **Default-Lane Source Rights Disposition** — initial_research_package_01_data_feasibility_and_rights_audit_conditional_data_go, initial_research_package_01_data_feasibility_and_rights_audit_incompetech_catalog, initial_research_package_01_data_feasibility_and_rights_audit_permissions_matrix, initial_research_package_01_data_feasibility_and_rights_audit_material_exclusions, initial_research_package_01_data_feasibility_and_rights_audit_conditional_sources, initial_research_package_01_data_feasibility_and_rights_audit_acquisition_shortlist [EXTRACTED 1.00]
-- **Bounded CLAP Feasibility Probe** — initial_research_package_03_clap_encoder_feasibility_and_benchmark_handoff_larger_clap_music, initial_research_package_03_clap_encoder_feasibility_and_benchmark_handoff_clap_htsat_unfused, initial_research_package_03_clap_encoder_feasibility_and_benchmark_handoff_processing_contract, initial_research_package_03_clap_encoder_feasibility_and_benchmark_handoff_environment_pins, initial_research_package_03_clap_encoder_feasibility_and_benchmark_handoff_bounded_cpu_benchmark, initial_research_package_03_clap_encoder_feasibility_and_benchmark_handoff_rss_guardrail, initial_research_package_03_clap_encoder_feasibility_and_benchmark_handoff_encoder_fallbacks [EXTRACTED 1.00]
+## Communities (26 total, 9 thin omitted)
 
-## Communities (17 total, 8 thin omitted)
+### Community 0 - "manifest.py"
+Cohesion: 0.07
+Nodes (42): 0001 — Foundation choices, cli(), main(), Component, connected_components(), _union_key(), IngestRequest, brief_content_hash() (+34 more)
 
-### Community 0 - "Feasibility and Literature"
-Cohesion: 0.08
-Nodes (34): Bradley-Terry linear scorer, Frozen LAION larger CLAP music, Music Preference Model v0.1, AIME, Bayesian Personalized Ranking, CMI-RewardBench, MusicPrefs and MAD, TuneJury (+26 more)
-
-### Community 1 - "Audio Loudness Meter"
-Cohesion: 0.09
-Nodes (41): _as_channels(), _biquads(), _block_power(), integrated_loudness(), _k_weight(), _lufs(), measure_loudness(), _require_rate() (+33 more)
-
-### Community 2 - "Rights and Identity Splits"
-Cohesion: 0.09
-Nodes (34): Identity Splits (component-based), Rights Policy (commercial_ready, research_only), Component, connected_components(), _union_key(), _UnionFind, brief_content_hash(), canonical_pair_id() (+26 more)
-
-### Community 3 - "Intake and Audition Gain"
-Cohesion: 0.10
-Nodes (34): gain_lufs_v1 Audition Normalization, P-01 Intake Path, file_sha256(), cli(), main(), AcquisitionReceipt, _append_model(), _ensure_manifest() (+26 more)
-
-### Community 4 - "Encoder Policy and Agent Rules"
-Cohesion: 0.10
-Nodes (20): Dummy Encoder, Foundation Choices, CLAP Encoder, Fused CLAP (Primary), Incompetech Acquisition Shortlist, Conditional Audio Sources, Incompetech Catalog, Adherence Preference and Acceptability Labels (+12 more)
-
-### Community 5 - "Fixture Dataset Builder"
+### Community 1 - "build_dataset"
 Cohesion: 0.12
-Nodes (40): load_config(), validate(), build_dataset(), dump_jsonl(), foundation_config(), _hex(), main(), make_asset() (+32 more)
+Nodes (43): load_config(), validate(), build_dataset(), dump_jsonl(), foundation_config(), _hex(), main(), make_asset() (+35 more)
 
-### Community 6 - "Encoder Protocol and Features"
+### Community 2 - "06 — MVP Technical Specification"
 Cohesion: 0.12
-Nodes (15): PreparedExcerpt, AudioTextEncoder, FeatureBatch, FeatureError, l2_normalize(), feature_cache_key(), load_feature(), store_feature() (+7 more)
+Nodes (16): 06 — MVP Technical Specification, Acceptance criteria and tests, `assets.jsonl`, `briefs.jsonl` and `clips.jsonl`, CLI surface, Error and uncertainty behavior, Functional pipeline, Future generator integration contract (+8 more)
 
-### Community 7 - "Ingestion Tests"
+### Community 3 - "test_audition.py"
+Cohesion: 0.32
+Nodes (13): _prepare(), _replace_asset(), _sine(), test_bs1770_meter_matches_the_stereo_reference_tone(), test_gain_path_rejects_silent_nonfinite_invalid_and_out_of_bounds(), test_gain_preparation_is_deterministic_and_leaves_the_source_file(), test_hot_sine_is_attenuated_by_gain_alone(), test_inverted_stereo_is_phase_cancellation_not_a_level_match() (+5 more)
+
+### Community 4 - "base.py"
+Cohesion: 0.13
+Nodes (16): 0002 — Audition normalization, CLAP handoff, Gain, Order, PreparedExcerpt, AudioTextEncoder, FeatureBatch, FeatureError (+8 more)
+
+### Community 5 - "ingest"
 Cohesion: 0.20
-Nodes (29): load_dataset(), _config(), _mp3(), _pair(), _request(), _rights(), _sha(), test_cli_ingest_and_prepare() (+21 more)
+Nodes (30): file_sha256(), ingest(), _config(), _mp3(), _pair(), _request(), _rights(), _sha() (+22 more)
 
-### Community 8 - "Scorer and Calibration Policy"
+### Community 6 - "MusicPrefError"
+Cohesion: 0.08
+Nodes (49): Identity, _as_channels(), _biquads(), _block_power(), integrated_loudness(), _k_weight(), _lufs(), measure_loudness() (+41 more)
+
+### Community 7 - "Status"
+Cohesion: 0.11
+Nodes (17): CLAP, Implemented, Implemented, not experimentally validated, Next, Not implemented, Open, P-01, Status (+9 more)
+
+### Community 8 - "03 — Audio Encoder and Architecture Analysis"
+Cohesion: 0.18
+Nodes (11): 03 — Audio Encoder and Architecture Analysis, Architecture B: smallest credible conditional ranker, Architecture C: exact neural challenger, Independent, pairwise, and listwise ranking, License and adaptation matrix, Other 2025–2026 options, Personalization and encoder adaptation, Ranked encoder shortlist (+3 more)
+
+### Community 9 - "05 — Training and Evaluation Research Plan"
+Cohesion: 0.18
+Nodes (11): 05 — Training and Evaluation Research Plan, Baselines and experiment matrix, Blind listening validation and generation efficiency, Calibration and abstention policy, Evaluation metrics and uncertainty, Leakage-safe partitioning, Minimum evidence and promotion rules, Preprocessing and feature caching (+3 more)
+
+### Community 10 - "04 — Dataset and Human Feedback Strategy"
+Cohesion: 0.20
+Nodes (10): 04 — Dataset and Human Feedback Strategy, Annotation design, Auditable acquisition procedure, Collection stages and burden, Dataset inventory: content, labels and fitness, Dataset rights audit and decision, Efficient feedback and synthetic data, Generated audio and Suno (+2 more)
+
+### Community 11 - "03 — CLAP Encoder Feasibility & Benchmark Handoff"
+Cohesion: 0.22
+Nodes (8): 03 — CLAP Encoder Feasibility & Benchmark Handoff, Bounded benchmark specification, Environment and known integration risks, Exact processing and return contract, Local setup and acquisition — after Session 1, Memory, storage and fallbacks, Pinned artifacts, prepared_waveform and exact_brief come from the validated manifests.
+
+### Community 12 - "research/README.md"
+Cohesion: 0.25
+Nodes (3): Active research, Authority, Graphify
+
+### Community 15 - "01 — Data Feasibility & Rights Audit"
 Cohesion: 0.29
-Nodes (8): Calibration Gates, Dummy Encoder (fixture-v1), Linear Pairwise Scorer, MVP Scope (No Generator/DAW/SaaS), Neural MLP Alternative (131,201 params), Null Result is Valid Deliverable, Pairwise Comparisons, Preference vs Adherence Separation
+Nodes (6): 01 — Data Feasibility & Rights Audit, Acquisition manifest and review procedure, Exact acquisition shortlist, Material exclusions and component questions, Source inventory and acquisition decision, Source-level permissions matrix
 
-## Ambiguous Edges - Review These
-- `Frozen LAION larger CLAP music` → `CMI-RewardBench`  [AMBIGUOUS]
-  docs/research/02_Literature_and_Competitive_Landscape.md · relation: conceptually_related_to
-- `Five-point gain gate` → `Locked protocol changes`  [AMBIGUOUS]
-  docs/research/08_Cursor_Agent_Implementation_Handoff.md · relation: references
-- `Preliminary Four-Group Acquisition Test` → `Independent Family Identity Rule`  [AMBIGUOUS]
-  Initial Research Package/02_P0_Dataset_and_Listening_Protocol.md · relation: conceptually_related_to
+### Community 16 - "02 — P0 Dataset & Listening Protocol"
+Cohesion: 0.29
+Nodes (6): 02 — P0 Dataset & Listening Protocol, How to construct the full P0, One-musician collection method, Repeatability and readiness, Small preliminary acquisition test, Ten-second candidate preparation
+
+### Community 21 - "0003 — P-01 real-audio ingestion"
+Cohesion: 0.33
+Nodes (5): 0003 — P-01 real-audio ingestion, Catalog and identity, Files, Preparation, Three different gates
+
+### Community 23 - "Votelle"
+Cohesion: 0.50
+Nodes (3): Authority, Votelle, What to open
 
 ## Knowledge Gaps
-- **5 isolated node(s):** `music-pref`, `Conditional GO Decision`, `Research v0.1`, `Music Preference Model`, `Votelle`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 53 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **1 isolated node(s):** `votelle-music`
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 131 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **9 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `10-Second Excerpt Protocol` connect `Rights and Identity Splits` to `Scorer and Calibration Policy`, `Audio Loudness Meter`, `Encoder Policy and Agent Rules`?**
-  _High betweenness centrality (0.127) - this node is a cross-community bridge._
-- **Are the 14 inferred relationships involving `MusicPrefError` (e.g. with `main()` and `_rights_gate()`) actually correct?**
-  _`MusicPrefError` has 14 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `music-pref`, `Conditional GO Decision`, `Research v0.1` to the rest of the system?**
-  _5 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Feasibility and Literature` be split into smaller, more focused modules?**
-  _Cohesion score 0.08382936507936507 - nodes in this community are weakly interconnected._
-- **Why does `prepare_excerpt()` connect `Audio Loudness Meter` to `Rights and Identity Splits`, `Intake and Audition Gain`, `Fixture Dataset Builder`, `Encoder Protocol and Features`?**
-  _High betweenness centrality (0.123) - this node is a cross-community bridge._
-
-### Low-confidence Hints
-_AMBIGUOUS edges — the extractor was unsure. Verify before acting on these._
-
-- **What is the exact relationship between `Frozen LAION larger CLAP music` and `CMI-RewardBench`?**
-  _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **What is the exact relationship between `Five-point gain gate` and `Locked protocol changes`?**
-  _Edge tagged AMBIGUOUS (relation: references) - confidence is low._
+- **Why does `MusicPrefError` connect `MusicPrefError` to `manifest.py`, `test_audition.py`, `base.py`, `ingest`, `Status`?**
+  _High betweenness centrality (0.262) - this node is a cross-community bridge._
+- **Are the 15 inferred relationships involving `MusicPrefError` (e.g. with `Status` and `main()`) actually correct?**
+  _`MusicPrefError` has 15 INFERRED edges - model-reasoned connections that need verification._
+- **What connects `votelle-music` to the rest of the system?**
+  _1 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `manifest.py` be split into smaller, more focused modules?**
+  _Cohesion score 0.07400194741966894 - nodes in this community are weakly interconnected._
+- **Why does `Status` connect `Status` to `MusicPrefError`?**
+  _High betweenness centrality (0.213) - this node is a cross-community bridge._
+- **Are the 4 inferred relationships involving `build_dataset()` (e.g. with `Asset` and `Brief`) actually correct?**
+  _`build_dataset()` has 4 INFERRED edges - model-reasoned connections that need verification._
+- **Should `build_dataset` be split into smaller, more focused modules?**
+  _Cohesion score 0.11530398322851153 - nodes in this community are weakly interconnected._

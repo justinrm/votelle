@@ -16,14 +16,14 @@ import numpy as np
 import soundfile as sf
 from scipy.signal import resample
 
-from music_pref.audio.loudness import (
+from votelle_music.audio.loudness import (
     LOUDNESS_METHOD,
     TRUE_PEAK_METHOD,
     measure_loudness,
     true_peak_linear,
 )
-from music_pref.audio.measure import is_digital_silence, measure_crop
-from music_pref.schemas import MusicPrefError, canonical_bytes, sha256_hex
+from votelle_music.audio.measure import is_digital_silence, measure_crop
+from votelle_music.schemas import MusicPrefError, canonical_bytes, sha256_hex
 
 TARGET_RATE = 48000
 TARGET_SAMPLES = 480_000

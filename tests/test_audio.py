@@ -1,10 +1,10 @@
 import numpy as np
 import pytest
 
-from music_pref.audio.measure import measure_crop
-from music_pref.audio.prepare import prepare_excerpt, read_audio
-from music_pref.data.manifest import load_config, validate
-from music_pref.schemas import MusicPrefError
+from votelle_music.audio.measure import measure_crop
+from votelle_music.audio.prepare import prepare_excerpt, read_audio
+from votelle_music.data.manifest import load_config, validate
+from votelle_music.schemas import MusicPrefError
 from tests.fixtures.build import build_dataset, write_config
 
 

@@ -1,0 +1,5 @@
+# Generated graph. Query it with the graphify CLI; do not index it into context.
+graphify-out/
+
+# Historical research. Open a file when the task is provenance or a contradiction.
+docs/archive/

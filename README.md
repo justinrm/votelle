@@ -1,85 +1,161 @@
-# music_pref
+# Votelle
 
-Votelle is an open-source research project on whether a small, adaptable model can learn one person’s musical taste and creative intent from comparative listening judgments. Generating music is becoming easy. Choosing which result matches a particular artistic vision is still slow, manual, and personal. Most evaluators score general quality, technical traits, or text-to-audio similarity. Votelle studies the finer preferences that make one composition feel right to a particular listener or creator.
+Votelle is a Python research project investigating whether compact, adaptable models can learn a creator’s musical preferences—and separately evaluate creative-brief adherence—from comparative listening judgments. This repository currently implements the offline data foundation for that research, not a trained music evaluator.
 
-The question is whether relatively little human feedback is enough to recommend useful candidates. Success is a useful, scientifically defensible method, including an honest negative result. This repository is the offline foundation for that experiment: protocol v0.1.
+## Why Votelle?
 
-## Goals
+Music-generation systems can produce many plausible candidates; deciding which one serves a particular artistic direction still requires repeated human listening. General audio quality, acoustic measurements, and text–audio similarity can help, but none is equivalent to an individual creator’s preference. A candidate can follow a brief without being preferred, or be preferred while missing part of the brief.
 
-1. **Learn individual taste** from comparative listening judgments.
-2. **Score creative intent**: how closely music matches a creator’s description, mood, instrumentation, atmosphere, and direction.
-3. **Keep preference and instruction adherence separate.** A piece can follow the brief and still feel wrong, or feel right while missing the brief.
-4. **Reduce repeated listening** by helping a creator rank candidates, with the human keeping artistic authority.
-5. **Sit beside generators** as a modular evaluation layer for existing and future music systems.
-6. **Stay reproducible**: compact rankers, multimodal audio representations, low-data personalization, honest uncertainty, documented data rights, and comparisons against established methods.
+Votelle asks whether a relatively small amount of human feedback can teach a lightweight ranking model distinctions that matter to one creator. The intended role is an evaluation companion alongside music-generation systems, with the creator retaining the final choice. Reduced listening effort and better candidate selection are research hypotheses, not demonstrated benefits. A well-controlled negative result is a useful outcome.
 
-The longer aim is a personalized evaluation companion: compare candidates, notice recurring aesthetic preferences, and flag departures from intent. The listener’s judgment stays the authority. The system makes that judgment easier to apply across a large set of candidates.
+Protocol v0.1 evaluates an **explicitly selected ten-second excerpt**, not a whole song. Personal preference, brief adherence, and human acceptability are distinct judgments. Votelle is not a music generator, digital audio workstation, hosted service, or validated general-purpose music-quality predictor.
 
-**Fixture success is not evidence of preference prediction.** The tones under `tests/fixtures/` are generated test signals, not music and not human judgments. A passing test only means the manifests, rights checks, splits, and dummy encoder behave as specified.
+## Current status
 
-## What this package is
+The following describes the working tree reviewed on **October 10, 2026**. “Implemented” means present in source; it does not establish experimental effectiveness. See [current status and immediate gates](docs/STATUS.md) for the resumption record.
 
-It validates JSONL manifests, applies an explicit rights profile, builds leakage-safe identity components, prepares a declared 10-second excerpt, and caches a dummy 512-d embedding. The dummy encoder is named `dummy` / `fixture-v1` and cannot support a production claim. Profile `none_fixture_only` does not loudness-match anything. Profile `gain_lufs_v1` is the audition path: one constant gain toward -20 LUFS, stopped at -1 dBTP. A passing tone test is not evidence of musical suitability. The rules are in `docs/decisions/0002-audition-normalization.md`.
+| Component | Current state |
+| --- | --- |
+| Dataset contracts | Implemented: typed JSONL manifests, schema and reference validation |
+| Rights and provenance | Implemented: explicit permission policies, evidence checks, media hashes, acquisition receipts |
+| Audio preparation | Implemented: declared ten-second crops, mono/48 kHz output, versioned gain-only audition normalization |
+| Identity-safe splitting | Implemented: whole connected components from declared source/song/brief relationships and exact hashes |
+| Encoder interface and feature cache | Implemented library primitives; deterministic 512-dimensional `dummy` / `fixture-v1` encoder only |
+| P-01 real-audio intake | Implemented for three catalog recordings; musical suitability and listening outcomes remain unvalidated |
+| Real CLAP extraction | Planned; no adapter or local memory/throughput benchmark |
+| Human feedback collection | Schema and research protocol exist; no completed listening pilot or collection UI |
+| Linear ranking and personalization | Planned; no trained models or adaptation results |
+| Neural challenger | Conditional research comparison, not implemented |
+| Calibration, abstention, inference bundles | Planned; no validated probabilities or release-ready inference artifacts |
 
-Not in this tree: CLAP, training, an MLP, calibration, inference bundles, a generator, or a UI. Those are later sessions. Architecture notes live in `docs/research/`. Locked implementation choices are in `docs/decisions/0001-foundation-choices.md` and `docs/decisions/0002-audition-normalization.md`. P-01 intake rules are in `docs/decisions/0003-p01-ingestion.md`.
+The Git-ignored local P-01 intake contains Disquiet, Mesmerize, and Colorless Aura: three assets with research training declared `allowed`, other permissions `unknown`, and release clearance `not_assessed`. Brief, clip, and judgment manifests were empty, with no prepared excerpts. These intake records are neither an experimentally validated dataset nor files supplied by a clone; permission declarations are not independent legal clearance.
 
-## Setup
+**Fixture success is not evidence of preference prediction.** Generated tones and synthetic graph edges exercise software contracts; they are neither musical evaluation results nor human preference labels. No improvement over a baseline, calibrated probability, full-song understanding, or lyric-fidelity capability is claimed.
 
-Use the pinned Python 3.11 environment. Do not use the system Python 3.14 interpreter for this package.
+## Install from source
+
+Use [uv](https://docs.astral.sh/uv/) and **CPython 3.11**. Both `.python-version` and the project’s `>=3.11,<3.12` requirement select that series; other Python versions are outside the current package contract.
 
 ```bash
+git clone https://github.com/justinrm/votelle.git
+cd votelle
 uv python install 3.11
-uv sync --group dev
+uv sync --locked --group dev
 ```
 
-Core dependencies are pydantic, numpy, soundfile, and scipy. Exact pins are in `uv.lock`. Torch and Transformers are not installed.
+`uv sync` creates the project’s isolated `.venv`, installs the project, and includes pytest through the development group. The core dependencies are NumPy, Pydantic, SciPy, and SoundFile; [pyproject.toml](pyproject.toml) declares requirements and [uv.lock](uv.lock) records resolved versions. SoundFile needs libsndfile, normally bundled with its supported wheels. Environment setup may download Python and dependencies; the fixture workflow itself needs no network, model weights, private audio, credentials, or paid service.
 
-## Commands
+The working-tree distribution and CLI are **`votelle-music`**; the import package is **`votelle_music`**. The naming migration is not fully reconciled: accepted historical records still use `music-pref` / `music_pref`, and the exception class remains `MusicPrefError`. Those names describe earlier artifacts; use the current identifiers for commands. These instructions install from the checkout and do not assume a published PyPI distribution. PyTorch and Transformers are not dependencies of this foundation environment; the proposed CLAP probe belongs in a separate environment.
 
-From the repository root:
+## Offline quick start
+
+Run from the repository root:
 
 ```bash
 uv run python tests/fixtures/build.py --dest tests/fixtures/pilot --families 20
-uv run music-pref validate --config configs/foundation.json
-uv run music-pref split --config configs/foundation.json --output runs/split.json
-uv run pytest
+uv run votelle-music validate --config configs/foundation.json
+uv run votelle-music split --config configs/foundation.json --output runs/split.json
+uv run pytest -q
 ```
 
-`validate` prints a JSON report and exits nonzero when any issue has severity `error`. `split` writes a canonical JSON artifact and refuses to break a connected component. A fully connected comparison graph produces no split file.
+The builder creates twenty independent generated-tone assets, declared clips, rights fixtures, and the five manifests under the ignored `tests/fixtures/pilot/` directory. It copies the [first-party fixture declaration](tests/fixtures/FIRST_PARTY_DECLARATION.md) as evidence. The default fixture has no briefs or judgments; tests construct additional synthetic cases. It is not the twenty-family musical P0 study.
 
-The pilot builder writes generated tones and copies `tests/fixtures/FIRST_PARTY_DECLARATION.md` into the dataset. Generated audio is gitignored.
+`validate` emits a JSON report and returns a nonzero exit status for errors. `split` writes component membership, seed, manifest hashes, and provenance. The configuration requests 60/10/10/20 train/validation/calibration/test fractions with seed 17: allocation targets, not implemented training or calibration. Generated audio and `runs/` stay out of Git.
 
-## P-01 Reflective Piano
+Known test limitation: `test_repeat_ingest_is_deterministic` is timing-sensitive because separately generated float WAVs can contain different header timestamps despite identical PCM. A receipt records the actual file hash, so this fixture can fail a byte-equality assertion.
 
-`configs/p01_piano.json` points at `data/p01_piano` and uses `gain_lufs_v1`. It does not download audio. The operator decodes each official MP3 to a WAV or FLAC first and writes a reviewed rights row before ingest. Ingest copies both files, writes a receipt, and appends an asset only when that rights row is `reviewed` and its local evidence file matches the recorded hash. It does not edit permissions. `prepare` writes a float32 48 kHz mono WAV from the operator's crop. A loudness mismatch stays out of `clips.jsonl`. Do not run `split` on this config. Layout and the three gates (provisional review, dataset eligibility, release clearance) are in `docs/decisions/0003-p01-ingestion.md`.
+## Implemented foundation
 
-```bash
-uv run music-pref ingest --config configs/p01_piano.json \
-  --source-uri "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Disquiet.mp3" \
-  --raw /path/to/Disquiet.mp3 \
-  --decoded /path/to/Disquiet.wav \
-  --acquired-at 2026-10-09T18:00:00Z \
-  --decode-tool ffmpeg \
-  --decode-version 7.1 \
-  --decode-command "ffmpeg -i Disquiet.mp3 -c:a pcm_f32le Disquiet.wav" \
-  --rights-record-id RIGHTS_ID
+### Data contracts and provenance
 
-uv run music-pref prepare --config configs/p01_piano.json \
-  --asset-id ASSET_ID \
-  --clip-id clip-disquiet-1 \
-  --start 30 --end 40
-```
+[Versioned Pydantic schemas](src/votelle_music/schemas.py) describe assets, rights records, briefs, clips, judgments, configuration, and validation reports. A dataset has `assets.jsonl`, `rights.jsonl`, `briefs.jsonl`, `clips.jsonl`, and `judgments.jsonl`; empty manifests are permitted where appropriate. Validation checks schema shape, duplicate identifiers, cross-record references, file and canonical PCM hashes, declared audio properties, brief-text hashes, and excerpt bounds.
 
-A reviewed song-family link is an optional `--family-review` JSON file. Without it, Disquiet, Mesmerize, and Colorless Aura stay three recording ids and three song families. Passing the file does not rewrite an ingest that already happened.
+Judgments keep adherence and preference choices separate, including `tie` and `cannot_judge`, with independent candidate acceptability fields. Listener, session, presentation order, repeat linkage, and label source are recorded. Synthetic, teacher, and human labels are distinguishable; the schema does not turn a synthetic label into human evidence.
 
-## Last check
+### Reproducible excerpt preparation
 
-`uv run pytest -q` on CPython 3.11.16: 56 passed in 4.21s. The run did not download models, weights, or audio. Installed core packages are pinned in `uv.lock` (numpy 2.4.6, pydantic 2.14.0, scipy 1.17.1, soundfile 0.14.0, pytest 9.1.1). Torch and Transformers are not installed.
+Preparation accepts WAV or FLAC and requires operator-selected bounds spanning ten seconds within 1 ms. It rejects invalid samples, digital silence, and substantial phase cancellation on equal-mean downmix, then resamples to exactly 480,000 mono samples at 48 kHz. It neither chooses a crop nor repairs an invalid duration through padding or trimming. Originals are not modified.
 
-## Next session
+| Profile | Behavior |
+| --- | --- |
+| `none_fixture_only` | Downmix/resample without loudness gain; not a level-matched listening condition |
+| `gain_lufs_v1` | One constant gain toward −20 LUFS, capped by a −1 dBTP estimated true-peak ceiling; ±0.1 LU match tolerance |
 
-Session 2B is the CLAP probe, in a separate environment. Do not add Torch or Transformers to this environment. Do not run extraction until a human has downloaded the MP3s, reviewed permissions, chosen crops, and accepted the excerpts as musically suitable. Fixture tones and a passing ingest test are not that acceptance. The encoder protocol needs no signature change. See `docs/decisions/0002-audition-normalization.md`. Re-check this tree with:
+The audition path uses no compressor, limiter, or fade. A peak-limited or gate-changing excerpt can miss the loudness target. General validation reports a mismatch as a warning; the P-01 preparation path writes WAV/QC outputs but does not append mismatched excerpts to `clips.jsonl`. Technical acceptance is not musical acceptance. Loudness and peak estimation, method identifiers, and preprocessing hashes are specified in [decision 0002](docs/decisions/0002-audition-normalization.md); this is not an EBU-certified meter.
 
-```bash
-uv run pytest
-```
+### Grouping and features
+
+Identity components join source-recording IDs, song families, exact file/PCM matches, parent assets, brief families, comparisons, and repeats. Splitting preserves entire components and refuses infeasible allocations rather than falling back to random pairs. A connected comparison graph can make a split impossible. Exact relationships are only as complete as the supplied metadata: near-duplicate detection, artist/listener holdouts, and generator-generalization protocols are not provided by the main splitter.
+
+The `AudioTextEncoder` protocol separates future representation extraction from data preparation. The dummy encoder returns deterministic normalized vectors without musical meaning. Audio feature-cache keys include source PCM hash, excerpt bounds, preprocessing identity, encoder/revision, processor identity, pooling, and dtype. Cache writes use atomic replacement and reuse existing keys; these single-process primitives are not a complete experiment runner or an independent cache-integrity audit.
+
+## Architecture and CLI
+
+The implemented boundaries are deliberately small:
+
+| Module | Responsibility |
+| --- | --- |
+| [`schemas.py`](src/votelle_music/schemas.py) | Versioned data/configuration contracts and reports |
+| [`data/`](src/votelle_music/data/) | Manifest validation, rights checks, identity graphs, splitting, P-01 intake and preparation orchestration |
+| [`audio/`](src/votelle_music/audio/) | Decode checks, diagnostics, declared crops, normalization and preprocessing identity |
+| [`features/`](src/votelle_music/features/) | Encoder protocol, fixture encoder, cache keys and storage |
+| [`cli.py`](src/votelle_music/cli.py) | Four local commands; no training or ranking interface |
+
+Manually supplied source files and rights evidence feed intake; explicit crop bounds feed preparation. Validation and splitting are separate operations. Encoder/cache functionality is a library boundary, not an extraction CLI. The proposed extension is frozen audio/text features → separate adherence/preference scorers → held-out evaluation, calibration, and human selection validation. These downstream stages do not exist yet; no deployed infrastructure is implied.
+
+| Command | Required arguments | Purpose |
+| --- | --- | --- |
+| `validate` | `--config` | JSON validation report; errors cause failure, warnings alone do not |
+| `split` | `--config`, `--output` | Validate and write whole-component membership |
+| `ingest` | `--config`, `--source-uri`, `--raw`, `--decoded`, `--acquired-at`, `--decode-tool`, `--decode-version`, `--decode-command` | P-01 local acquisition receipt and conditional asset admission |
+| `prepare` | `--config`, `--asset-id`, `--clip-id`, `--start`, `--end` | P-01 crop preparation, WAV/QC outputs, conditional clip admission |
+
+Use `uv run votelle-music --help` or, for example, `uv run votelle-music ingest --help` for parser details. Ingestion additionally accepts `--rights-record-id` and `--family-review`. Relative `dataset_root` paths resolve from the current working directory, so run repository examples from the root.
+
+### P-01 real-audio workflow
+
+[configs/p01_piano.json](configs/p01_piano.json) uses `research_only` and `gain_lufs_v1`. Intake is restricted to the three exact official catalog URIs in [decision 0003](docs/decisions/0003-p01-ingestion.md); it is not a general audio downloader. Supply the raw MP3 and an already decoded WAV/FLAC locally. Decode tool/version/command are recorded, not executed; a lossless container does not make the MP3 source a lossless master.
+
+A reviewed rights row with a matching local evidence file admits an asset to the manifest without changing permissions. Otherwise, intake stages the source with a provisional receipt. Manifest admission, permission-policy validation, and release clearance are separate gates. `prepare` requires an admitted asset but is not a substitute for dataset rights validation. Choose and audition crops, write the creator brief, and explicitly assess musical suitability before any future encoder probe. Do not run `split` on this acquisition pilot. The decision record covers file layout, duplicate rejection, and reviewed family links; its older CLI spelling should be read alongside the current help above.
+
+## Research method and roadmap
+
+The initial representation is proposed frozen music CLAP audio/text embeddings, with exact-brief cosine similarity as a zero-training semantic baseline. Regularized linear pairwise scoring comes first, using audio–text interaction features that do not disappear when candidate scores are subtracted. A small shared neural scorer is a controlled challenger only if eligible data and baseline evidence justify it. Separate target models preserve the distinction between adherence and personal preference.
+
+Low-data personalization would fit a regularized listener-specific adjustment and measure learning curves on later, unseen families. Planned evaluations use source/brief grouping, training-only feature fitting, independent calibration data, locked test sets, and group-aware uncertainty. Ranking margins and training sigmoids are not publicly interpretable preference probabilities without calibration evidence. Abstention and blind human selection/acceptability studies must establish scope and utility; neither a single-listener pilot nor fixture success establishes general musical understanding. Generation savings would require a separate sequential-policy study, not merely ranking an already generated batch.
+
+The evidence-based sequence is:
+
+| Milestone | Gate before advancing |
+| --- | --- |
+| P-01 audition | Finalize a creator brief; select, prepare, and musically accept ten-second excerpts |
+| Bounded CLAP probe | Separate environment, pinned artifacts, cleared inputs, repeatability and memory/throughput measurements; MacBook Neo feasibility remains unmeasured |
+| P0 listening pilot | Twenty independent brief families, three candidates each, sixty unique comparisons plus ten delayed repeats; verify question meaning and repeatability |
+| Fixed-feature ranking | Establish semantic/compact controls and regularized linear baselines on eligible, grouped data |
+| Conditional neural comparison | Compare on the same locked examples; diagnose labels and representation limits before escalating complexity |
+| Personalization and utility | Test limited-feedback adaptation on future holdouts and selection usefulness in blind listening |
+| Reproducible research release | Confirm artifact-specific permissions; publish permitted artifacts and reproducible methods, including inconclusive or negative results |
+
+No deadlines or positive results are implied. Detailed requirements live in the [architecture analysis](docs/research/03_Audio_Encoder_and_Architecture_Analysis.md), [training and evaluation plan](docs/research/05_Training_and_Evaluation_Research_Plan.md), [P0 listening protocol](docs/research/02_P0_Dataset_and_Listening_Protocol.md), and [unrun CLAP benchmark handoff](docs/research/03_CLAP_Encoder_Feasibility_and_Benchmark_Handoff.md).
+
+## Reproducibility and data governance
+
+Permissions are explicitly `allowed`, `denied`, or `unknown`; a license name never grants training permission. `research_only` requires allowed research training. `commercial_ready` requires allowed research training, commercial training, audio release, embedding release, and checkpoint release. Unknown permissions block the applicable policy. These declarations support human review, not legal-evidence interpretation or independent clearance of recordings, compositions, lyrics, briefs, and annotations.
+
+Preserve source media and source manifests; intake appends new records, while prepared derivatives, QC, and split artifacts record distinct processing steps. Hashes, declared identities, seeds, preprocessing profiles, and locked environments make transformations traceable. Missing relationship metadata and unrecognized duplicates remain limitations. Frozen-feature extraction is not permission to use held-out labels for fitting or model selection.
+
+The workflow is local-first. Real audio, embeddings, weights, and generated run outputs are Git-ignored; a fresh checkout contains software and fixture generation, not a licensed musical dataset. Audio redistribution, embedding release, checkpoint release, and commercial use each need their own applicable permission. An encoder’s license does not authorize third-party audio redistribution or clear every potential dataset or generated output. See the [rights/data strategy](docs/research/04_Dataset_and_Human_Feedback_Strategy.md), [source-rights audit](docs/research/01_Data_Feasibility_and_Rights_Audit.md), and [foundation decisions](docs/decisions/0001-foundation-choices.md).
+
+## Contributing and documentation
+
+Start with the source installation and offline quick start above. Read [AGENTS.md](AGENTS.md), [docs/STATUS.md](docs/STATUS.md), and the decision relevant to the proposed change, then inspect the affected source and tests. Useful contributions include stronger contract tests, reproducibility checks, and bounded work on the current development gates. Discuss changes to excerpt length, grouping, rights policy, or label meaning before implementation: these require protocol versioning, not an incidental refactor. Do not add heavyweight encoder dependencies or treat scientific requirements as satisfied by passing tests.
+
+[The research index](docs/research/README.md) explains authority and selective navigation. Source, tests, configuration, and the lock establish executable behavior; decisions establish accepted choices; active research establishes still-unmet scientific requirements. The [MVP specification](docs/research/06_MVP_Technical_Specification.md) is a broader contract, not proof that every proposed module exists. [Archived material](docs/archive/README.md) preserves rationale and citations. `graphify-out/` is a generated navigation aid, not a specification; archive material is excluded from routine indexing. Consult original sources rather than treating inferred graph edges as facts.
+
+## Licensing and acknowledgments
+
+Votelle’s original source code and project documentation are licensed under the [Apache License, Version 2.0](LICENSE), unless a file explicitly states otherwise. The package metadata declares the SPDX identifier `Apache-2.0`, and source and wheel distributions include the license text.
+
+Original project code, third-party libraries, pretrained weights, recordings/compositions, human annotations, and derived artifacts have separate licensing and consent considerations. Planned CLAP use must retain the terms and identity of the specific library and checkpoint selected; those terms do not license this repository or its audio. No trained checkpoint or musical dataset is released here.
+
+The research builds on [LAION CLAP](https://github.com/LAION-AI/CLAP), established pairwise-ranking and calibration methods, and the upstream Python scientific stack. P-01 investigates recordings from Kevin MacLeod’s Incompetech catalog under separately recorded rights evidence. These acknowledgments imply neither affiliation nor endorsement.

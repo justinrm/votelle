@@ -11,7 +11,7 @@ import math
 import numpy as np
 from scipy.signal import lfilter, resample_poly
 
-from music_pref.schemas import MusicPrefError
+from votelle_music.schemas import MusicPrefError
 
 RATE = 48000
 BLOCK = 19200  # 400 ms

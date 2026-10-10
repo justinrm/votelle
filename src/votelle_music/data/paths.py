@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from music_pref.schemas import MusicPrefError
+from votelle_music.schemas import MusicPrefError
 
 
 def resolve_under_root(root: Path, relative: str) -> Path:

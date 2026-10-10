@@ -6,9 +6,9 @@ import os
 import random
 from pathlib import Path
 
-from music_pref.data.identity import Component, connected_components
-from music_pref.data.manifest import Dataset, dataset_root, load_dataset, validate
-from music_pref.schemas import FoundationConfig, MusicPrefError, SplitFractions, canonical_bytes, sha256_hex
+from votelle_music.data.identity import Component, connected_components
+from votelle_music.data.manifest import Dataset, dataset_root, load_dataset, validate
+from votelle_music.schemas import FoundationConfig, MusicPrefError, SplitFractions, canonical_bytes, sha256_hex
 
 SPLIT_ORDER = ("train", "validation", "calibration", "test")
 GROUPING_POLICY = "component_v1"

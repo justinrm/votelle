@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from music_pref.audio.prepare import file_sha256
-from music_pref.data.paths import resolve_under_root
-from music_pref.schemas import (
+from votelle_music.audio.prepare import file_sha256
+from votelle_music.data.paths import resolve_under_root
+from votelle_music.schemas import (
     Asset,
     Brief,
     Judgment,

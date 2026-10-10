@@ -2,10 +2,10 @@ import json
 
 import pytest
 
-from music_pref.data.identity import Component, connected_components
-from music_pref.data.manifest import load_config, load_dataset
-from music_pref.data.splits import SplitError, assign_components, write_split
-from music_pref.schemas import SplitFractions
+from votelle_music.data.identity import Component, connected_components
+from votelle_music.data.manifest import load_config, load_dataset
+from votelle_music.data.splits import SplitError, assign_components, write_split
+from votelle_music.schemas import SplitFractions
 from tests.fixtures.build import build_dataset, make_asset, make_brief, make_clip, make_judgment, write_config
 
 FRACTIONS = SplitFractions.model_validate(

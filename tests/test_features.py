@@ -1,12 +1,12 @@
 import numpy as np
 import pytest
 
-from music_pref.audio.prepare import prepare_excerpt, read_audio
-from music_pref.data.manifest import load_config, validate
-from music_pref.features.base import FeatureError, l2_normalize
-from music_pref.features.cache import feature_cache_key, load_feature, store_feature
-from music_pref.features.dummy import DummyEncoder
-from music_pref.schemas import MusicPrefError
+from votelle_music.audio.prepare import prepare_excerpt, read_audio
+from votelle_music.data.manifest import load_config, validate
+from votelle_music.features.base import FeatureError, l2_normalize
+from votelle_music.features.cache import feature_cache_key, load_feature, store_feature
+from votelle_music.features.dummy import DummyEncoder
+from votelle_music.schemas import MusicPrefError
 from tests.fixtures.build import build_dataset, make_brief, write_config
 
 
@@ -67,7 +67,7 @@ def test_cache_key_changes_with_inputs_and_store_is_immutable(tmp_path):
 
 
 def test_changed_audio_changes_the_cache_key(tmp_path):
-    from music_pref.audio.prepare import pcm_hash
+    from votelle_music.audio.prepare import pcm_hash
 
     root = build_dataset(tmp_path / "one", families=1)
     data, sample_rate = read_audio(root / "audio" / "asset-0.wav")

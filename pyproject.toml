@@ -1,8 +1,10 @@
 [project]
-name = "music-pref"
+name = "votelle-music"
 version = "0.1.0"
 description = "Offline data foundation for music preference research. Fixture results are not preference evidence."
 requires-python = ">=3.11,<3.12"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 dependencies = [
     "numpy>=1.26",
     "pydantic>=2",
@@ -11,7 +13,7 @@ dependencies = [
 ]
 
 [project.scripts]
-music-pref = "music_pref.cli:cli"
+votelle-music = "votelle_music.cli:cli"
 
 [dependency-groups]
 dev = ["pytest>=8"]

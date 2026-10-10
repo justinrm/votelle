@@ -14,7 +14,7 @@ from typing import Literal
 import soundfile as sf
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from music_pref.audio.prepare import (
+from votelle_music.audio.prepare import (
     GAIN_PROFILE,
     file_sha256,
     pcm_hash,
@@ -22,9 +22,9 @@ from music_pref.audio.prepare import (
     read_audio,
     waveform_for_encoder,
 )
-from music_pref.data.manifest import dataset_root, load_dataset, load_jsonl
-from music_pref.data.paths import resolve_under_root
-from music_pref.schemas import (
+from votelle_music.data.manifest import dataset_root, load_dataset, load_jsonl
+from votelle_music.data.paths import resolve_under_root
+from votelle_music.schemas import (
     SCHEMA_VERSION,
     Asset,
     Clip,
@@ -249,7 +249,7 @@ def _rights_gate(root: Path, rights_id: str | None) -> tuple[str, str]:
     path = root / "rights.jsonl"
     if not path.is_file():
         return "provisional_review", "rights.jsonl has no reviewed record. Staged and ineligible."
-    from music_pref.schemas import RightsRecord
+    from votelle_music.schemas import RightsRecord
 
     records, issues = load_jsonl(path, RightsRecord)
     if issues:

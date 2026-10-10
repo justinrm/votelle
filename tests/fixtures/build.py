@@ -8,9 +8,9 @@ from pathlib import Path
 import numpy as np
 import soundfile as sf
 
-from music_pref.audio.prepare import file_sha256, pcm_hash, read_audio
-from music_pref.data.manifest import brief_content_hash, canonical_pair_id
-from music_pref.schemas import SCHEMA_VERSION, Asset, Brief, Clip, Judgment, RightsRecord
+from votelle_music.audio.prepare import file_sha256, pcm_hash, read_audio
+from votelle_music.data.manifest import brief_content_hash, canonical_pair_id
+from votelle_music.schemas import SCHEMA_VERSION, Asset, Brief, Clip, Judgment, RightsRecord
 
 DECLARATION = Path(__file__).with_name("FIRST_PARTY_DECLARATION.md")
 

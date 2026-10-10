@@ -1,0 +1,30 @@
+# Historical research is not part of a routine scan.
+# Read docs/archive/ directly, or run `graphify docs/archive` on purpose.
+/docs/archive/
+
+# Generated graph files are not inputs.
+/graphify-out/
+
+# Audio, embeddings, weights, and training outputs.
+# These also apply to tracked files. .gitignore cannot re-include them.
+# Schemas, JSONL manifests, and research notes are not listed.
+*.wav
+*.flac
+*.mp3
+*.aiff
+*.aif
+*.ogg
+*.m4a
+*.aac
+*.npy
+*.npz
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.bin
+*.pkl
+/cache/
+/runs/
+/checkpoints/

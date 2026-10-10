@@ -1,0 +1,18 @@
+---
+description: "Use Graphify selectively for Votelle architecture, Python dependencies, data pipelines, encoder integration, training, and evaluation."
+alwaysApply: false
+---
+
+Graphify is a code-navigation aid for this repository. Research authority stays in `docs/decisions/` and the active notes under `docs/research/`. `docs/archive/` is historical and is excluded from a routine scan.
+
+Query only when cross-module understanding or dependency tracing would help. Prefer one focused query before a broader search.
+
+- `graphify query "<question>"` — scoped subgraph
+- `graphify path "<A>" "<B>"` — dependency path between two symbols
+- `graphify explain "<concept>"` — neighbors of one node
+
+Use the returned symbols and paths to open the relevant source files. Verify every relationship against the current source. Do not treat graph output as authority over accepted research specifications or the code.
+
+Do not load `graphify-out/graph.json`, `graphify-out/GRAPH_REPORT.md`, or `graphify-out/graph.html` in full. Do not repeat a query whose result is already in the session.
+
+After a significant structural change, refresh with `graphify update .` (incremental, AST-only). Do not rebuild after every edit. Do not install hooks, watchers, or an MCP server.

@@ -6,9 +6,9 @@ import hashlib
 
 import numpy as np
 
-from music_pref.audio.prepare import PreparedExcerpt
-from music_pref.features.base import FeatureBatch, l2_normalize
-from music_pref.schemas import Brief, EncoderSpec
+from votelle_music.audio.prepare import PreparedExcerpt
+from votelle_music.features.base import FeatureBatch, l2_normalize
+from votelle_music.schemas import Brief, EncoderSpec
 
 DIMENSION = 512
 

@@ -7,8 +7,8 @@ from typing import Protocol
 
 import numpy as np
 
-from music_pref.audio.prepare import PreparedExcerpt
-from music_pref.schemas import Brief, EncoderSpec, MusicPrefError
+from votelle_music.audio.prepare import PreparedExcerpt
+from votelle_music.schemas import Brief, EncoderSpec, MusicPrefError
 
 
 class FeatureError(MusicPrefError):

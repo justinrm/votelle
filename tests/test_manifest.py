@@ -3,8 +3,8 @@ import json
 import pytest
 from pydantic import ValidationError
 
-from music_pref.data.manifest import load_config, orient_judgment, validate
-from music_pref.schemas import FoundationConfig
+from votelle_music.data.manifest import load_config, orient_judgment, validate
+from votelle_music.schemas import FoundationConfig
 from tests.fixtures.build import build_dataset, make_judgment, write_config
 
 

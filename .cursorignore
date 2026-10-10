@@ -1,0 +1,39 @@
+# Keep large artifacts out of model context. Schemas, JSONL manifests,
+# research notes, and Python source stay readable.
+# graphify-out/ is in .cursorindexingignore so `graphify query` can still read it.
+
+*.wav
+*.flac
+*.mp3
+*.aiff
+*.aif
+*.ogg
+*.m4a
+*.aac
+*.npy
+*.npz
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.bin
+*.pkl
+
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+*.egg-info/
+.eggs/
+
+/cache/
+/runs/
+/checkpoints/
+*.log
+wandb/
+mlruns/
+lightning_logs/

@@ -9,14 +9,14 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from music_pref.data.ingest import IngestRequest, ingest, prepare_clip
-from music_pref.data.manifest import load_config, report_bytes, validate
-from music_pref.data.splits import SplitError, write_split
-from music_pref.schemas import MusicPrefError, canonical_bytes
+from votelle_music.data.ingest import IngestRequest, ingest, prepare_clip
+from votelle_music.data.manifest import load_config, report_bytes, validate
+from votelle_music.data.splits import SplitError, write_split
+from votelle_music.schemas import MusicPrefError, canonical_bytes
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="music-pref")
+    parser = argparse.ArgumentParser(prog="votelle-music")
     commands = parser.add_subparsers(dest="command", required=True)
     validate_cmd = commands.add_parser("validate")
     validate_cmd.add_argument("--config", required=True, type=Path)
