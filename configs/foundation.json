@@ -1,0 +1,22 @@
+{
+  "schema_version": "0.1",
+  "dataset_root": "tests/fixtures/pilot",
+  "rights_policy": "commercial_ready",
+  "target": "adherence",
+  "seed": 17,
+  "split_fractions": {
+    "train": 0.6,
+    "validation": 0.1,
+    "calibration": 0.1,
+    "test": 0.2
+  },
+  "audio": {
+    "excerpt_seconds": 10,
+    "sample_rate": 48000,
+    "channels": 1,
+    "normalization_profile": "none_fixture_only"
+  },
+  "encoder": {"name": "dummy", "revision": "fixture-v1"},
+  "network_access": false,
+  "level_matched": false
+}

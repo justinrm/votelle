@@ -1,0 +1,24 @@
+[project]
+name = "music-pref"
+version = "0.1.0"
+description = "Offline data foundation for music preference research. Fixture results are not preference evidence."
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "numpy>=1.26",
+    "pydantic>=2",
+    "scipy>=1.11",
+    "soundfile>=0.12",
+]
+
+[project.scripts]
+music-pref = "music_pref.cli:cli"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

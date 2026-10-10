@@ -1,0 +1,53 @@
+# Local environment. Commit uv.lock and .python-version.
+.venv/
+venv/
+.env
+.env.*
+
+# Python / hatchling
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Tests and tooling
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.cache/
+
+# User data and derived outputs
+data/
+cache/
+runs/
+checkpoints/
+
+# Generated fixture tones (tests/fixtures/build.py --dest)
+tests/fixtures/pilot/
+
+# Audio, embeddings, and weights stay out of the repo.
+*.wav
+*.flac
+*.mp3
+*.aiff
+*.aif
+*.ogg
+*.npy
+*.npz
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.bin
+
+# Interrupted writes from the feature cache and split command
+*.tmp
+
+# OS
+.DS_Store
