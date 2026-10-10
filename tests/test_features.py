@@ -66,6 +66,16 @@ def test_cache_key_changes_with_inputs_and_store_is_immutable(tmp_path):
     np.testing.assert_array_equal(load_feature(path), vector)
 
 
+def test_cache_rejects_a_key_that_leaves_the_directory(tmp_path):
+    cache = tmp_path / "cache"
+    vector = l2_normalize(np.arange(512))
+    with pytest.raises(FeatureError) as caught:
+        store_feature(cache, "../outside", vector)
+    assert caught.value.code == "schema_invalid"
+    assert not cache.exists()
+    assert not (tmp_path / "outside.npy").exists()
+
+
 def test_changed_audio_changes_the_cache_key(tmp_path):
     from votelle_music.audio.prepare import pcm_hash
 

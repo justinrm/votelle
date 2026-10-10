@@ -3,7 +3,7 @@ description: "Use Graphify selectively for Votelle architecture, Python dependen
 alwaysApply: false
 ---
 
-Graphify is a code-navigation aid for this repository. Research authority stays in `docs/decisions/` and the active notes under `docs/research/`. `docs/archive/` is historical and is excluded from a routine scan.
+Graphify is an optional code-navigation aid for this repository. Generated output is written to gitignored `graphify-out/` and is absent until a developer regenerates it. It is not project authority. Research authority stays in `docs/decisions/` and the active notes under `docs/research/`. `docs/archive/` is historical and is excluded from a routine scan.
 
 Query only when cross-module understanding or dependency tracing would help. Prefer one focused query before a broader search.
 

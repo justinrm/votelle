@@ -176,8 +176,8 @@ def _write_new(path: Path, data: bytes, created: list[Path]) -> None:
             field="relative_path",
         )
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(data)
     created.append(path)
+    path.write_bytes(data)
 
 
 def _ensure_manifest(root: Path, name: str, created: list[Path]) -> None:
@@ -185,8 +185,8 @@ def _ensure_manifest(root: Path, name: str, created: list[Path]) -> None:
     if path.exists():
         return
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("", encoding="utf-8")
     created.append(path)
+    path.write_text("", encoding="utf-8")
 
 
 def _append_model(path: Path, record: BaseModel, restores: list[tuple[Path, bytes]]) -> None:
@@ -201,7 +201,24 @@ def _load_receipts(root: Path) -> list[dict]:
     directory = root / "receipts"
     if not directory.is_dir():
         return []
-    return [json.loads(path.read_text(encoding="utf-8")) for path in sorted(directory.glob("*.json"))]
+    loaded: list[dict] = []
+    for path in sorted(directory.glob("*.json")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise MusicPrefError(
+                "schema_invalid",
+                f"{path.name} is not valid JSON. Fix or remove that receipt before ingesting.",
+                field="receipts",
+            ) from exc
+        if not isinstance(payload, dict):
+            raise MusicPrefError(
+                "schema_invalid",
+                f"{path.name} must be a JSON object. Fix or remove that receipt before ingesting.",
+                field="receipts",
+            )
+        loaded.append(payload)
+    return loaded
 
 
 def _family_review(path: Path | None) -> FamilyReview | None:
@@ -459,8 +476,24 @@ def prepare_clip(config, asset_id: str, clip_id: str, start_seconds: float, end_
         raise MusicPrefError("invalid_source", "clip_id is required.", field="clip_id")
     root = dataset_root(config)
     dataset, issues = load_dataset(root)
-    if any(issue.severity == "error" and issue.field == "assets.jsonl" for issue in issues):
-        raise MusicPrefError("schema_invalid", "assets.jsonl is invalid.", field="assets.jsonl")
+    manifest_error = next(
+        (
+            issue
+            for issue in issues
+            if issue.severity == "error"
+            and (
+                issue.field in {"assets.jsonl", "clip_id"}
+                or (issue.field == "clips.jsonl" and issue.code != "missing_reference")
+            )
+        ),
+        None,
+    )
+    if manifest_error is not None:
+        raise MusicPrefError(
+            "schema_invalid",
+            "Fix assets.jsonl and clips.jsonl before preparing a clip.",
+            field=manifest_error.field,
+        )
     asset = next((row for row in dataset.assets if row.asset_id == asset_id), None)
     if asset is None:
         raise MusicPrefError(
@@ -518,8 +551,8 @@ def prepare_clip(config, asset_id: str, clip_id: str, start_seconds: float, end_
         if wav_path.exists() or qc_path.exists():
             raise MusicPrefError("already_exists", "Refusing to overwrite a prepared clip.", record_id=clip_id)
         wav_path.parent.mkdir(parents=True, exist_ok=True)
-        sf.write(wav_path, wave, 48000, format="WAV", subtype="FLOAT")
         created.append(wav_path)
+        sf.write(wav_path, wave, 48000, format="WAV", subtype="FLOAT")
         written, written_rate = sf.read(wav_path, always_2d=False, dtype="float32")
         if written_rate != 48000 or pcm_hash(written) != qc.prepared_pcm_sha256:
             raise MusicPrefError("hash_mismatch", "Prepared WAV does not match the excerpt.", field="relative_path")

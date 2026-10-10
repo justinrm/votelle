@@ -46,8 +46,9 @@ tests/fixtures/pilot/
 *.onnx
 *.bin
 
-# Graphify: retain shareable artifacts, ignore generated state
+# Optional local Graphify output. A fresh checkout does not contain it.
 /graphify-out/
+docs/archive/graphify-out/
 
 # Interrupted writes from the feature cache and split command
 *.tmp

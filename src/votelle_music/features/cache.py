@@ -41,6 +41,8 @@ def feature_cache_key(
 
 
 def store_feature(cache_dir: Path, key: str, vector: np.ndarray) -> Path:
+    if len(key) != 64 or any(character not in "0123456789abcdef" for character in key):
+        raise FeatureError("schema_invalid", "Feature cache keys must be 64 lowercase hex characters.")
     stored = np.ascontiguousarray(vector, dtype=np.float32)
     if stored.shape != (512,):
         raise FeatureError("encoder_dimension", "Cache entries must be vectors of length 512.")

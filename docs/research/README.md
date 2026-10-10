@@ -14,7 +14,7 @@ Labels below are an index. The documents themselves were not rewritten, so a sec
 | [06_MVP_Technical_Specification.md](06_MVP_Technical_Specification.md) | Product and data contract. Manifests, excerpts, and the dummy encoder exist. Training, calibration, and inference do not |
 | [01_Data_Feasibility_and_Rights_Audit.md](01_Data_Feasibility_and_Rights_Audit.md) | Source audit and the P-01 shortlist. Ingest does not turn this audit into a grant |
 | [02_P0_Dataset_and_Listening_Protocol.md](02_P0_Dataset_and_Listening_Protocol.md) | Listening protocol. Not run |
-| [03_CLAP_Encoder_Feasibility_and_Benchmark_Handoff.md](03_CLAP_Encoder_Feasibility_and_Benchmark_Handoff.md) | Unrun CPU probe. No weights downloaded and no benchmark recorded |
+| [03_CLAP_Encoder_Feasibility_and_Benchmark_Handoff.md](03_CLAP_Encoder_Feasibility_and_Benchmark_Handoff.md) | Dated pre-attempt contract, preserved unchanged. Later single-clip CPU feasibility succeeded; the 20-clip benchmark has not been run. See [current status](../STATUS.md) |
 
 Accepted engineering choices that narrowed these notes are in `docs/decisions/`. Current implementation status is in `docs/STATUS.md`.
 
@@ -25,12 +25,10 @@ Accepted engineering choices that narrowed these notes are in `docs/decisions/`.
 3. This directory establishes scientific requirements and experimental gates the code does not yet meet.
 4. `docs/PROJECT_DIRECTION.md` states long-term project intent. It does not override items 1–3, change protocol v0.1, or turn a hypothesis into an implemented capability.
 5. `docs/archive/` is evidence and earlier rationale. It does not override a later decision or the code.
-6. `graphify-out/` is a navigation map. An inferred edge is not a project fact. Follow `source_file` and check the file.
+6. `graphify-out/` is an optional local map. It is not in a fresh checkout and it is not a source of authority. An inferred edge is not a project fact. Follow `source_file` and check the file.
 
 ## Graphify
 
-`.graphifyignore` keeps `docs/archive/` and `graphify-out/` out of a routine scan. Active source, decisions, and this directory stay in the scan.
+Graphify is an optional local navigation aid. Contributing does not require it, and a fresh Git checkout does not contain a generated graph. Files under `graphify-out/` are local artifacts, not sources of project authority. Regenerate them with `graphify update .` when a map would help. Inferred edges are hints: open `source_file` and check it.
 
-`graphify update .` on 2026-10-10 refreshed `graphify-out/`: 419 nodes, 1320 edges, no LLM tokens. That graph includes Python symbols and headings from this directory, the decisions, `README.md`, and `AGENTS.md`. It does not include `docs/archive/`. Inferred edges are hints.
-
-`graphify .` is the full rebuild. This session did not run it. `graphify docs/archive` is the deliberate archive scan. That command stopped here because no semantic-extraction key was set, after creating nothing but an empty cache, which was deleted. A completed archive scan writes `docs/archive/graphify-out/`, and that directory is gitignored. Do not install Torch or Transformers to refresh the graph.
+`.graphifyignore` keeps `docs/archive/` and `graphify-out/` out of a routine scan. Active source, decisions, and this directory stay in the scan. `graphify docs/archive` is the deliberate archive scan. A completed archive scan writes `docs/archive/graphify-out/`. That directory is gitignored, as is `/graphify-out/`. Do not install Torch or Transformers to refresh the graph.

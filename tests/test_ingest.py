@@ -366,17 +366,123 @@ def test_reviewed_evidence_does_not_grant_permissions_or_release(tmp_path):
 
 
 def test_repeat_ingest_is_deterministic(tmp_path):
-    def once(name: str) -> bytes:
+    def once(name: str):
         root = tmp_path / name
         incoming = tmp_path / f"in-{name}"
         raw, decoded = _pair(incoming, "disquiet", rate=44100, seconds=12)
+        # PEAK timestamps can differ. Force benign RIFF metadata differences without sleeps.
+        container = decoded.read_bytes()
+        metadata = b"JUNK" + (2).to_bytes(4, "little") + name.encode().ljust(2, b"\0")
+        decoded.write_bytes(
+            container[:4] + (len(container) - 8 + len(metadata)).to_bytes(4, "little")
+            + container[8:] + metadata
+        )
+        raw_before, decoded_before = raw.read_bytes(), decoded.read_bytes()
+        input_pcm, input_rate = sf.read(decoded, always_2d=True, dtype="float32")
+        expected_pcm_hash = _sha(np.ascontiguousarray(input_pcm, dtype="<f4").tobytes())
         config = _config(tmp_path / f"{name}.json", root)
         _rights(root)
-        receipt = ingest(config, _request(root, DISQUIET, raw, decoded, rights_record_id="rights-p01"))
-        stored = json.loads((root / "receipts" / f"{receipt.asset_id}.json").read_text(encoding="utf-8"))
-        return canonical_bytes(stored)
+        rights_before = (root / "rights.jsonl").read_bytes()
+        evidence_before = (root / "evidence" / "terms.txt").read_bytes()
+        request = _request(root, DISQUIET, raw, decoded, rights_record_id="rights-p01")
+        receipt = ingest(config, request)
+        receipt_path = root / "receipts" / f"{receipt.asset_id}.json"
+        stored = json.loads(receipt_path.read_text(encoding="utf-8"))
+        assert receipt_path.read_bytes() == canonical_bytes(receipt.model_dump(mode="json"))
+        assert stored == receipt.model_dump(mode="json")
 
-    assert once("a") == once("b")
+        copied_raw, copied_decoded = root / receipt.raw_relative_path, root / receipt.decoded_relative_path
+        assert receipt.raw_sha256 == _sha(raw_before) == file_sha256(raw) == file_sha256(copied_raw)
+        assert receipt.decoded_sha256 == _sha(decoded_before) == file_sha256(decoded) == file_sha256(copied_decoded)
+        assert copied_raw.read_bytes() == raw_before == raw.read_bytes()
+        assert copied_decoded.read_bytes() == decoded_before == decoded.read_bytes()
+        copied_pcm, copied_rate = sf.read(copied_decoded, always_2d=True, dtype="float32")
+        np.testing.assert_array_equal(copied_pcm, input_pcm)
+        assert copied_rate == input_rate == receipt.sample_rate == 44100
+        assert copied_pcm.shape == (receipt.frames, receipt.channels) == (529_200, 1)
+        assert receipt.duration_seconds == 12.0
+        assert (receipt.format_name, receipt.subtype, receipt.lossless_master) == ("WAV", "FLOAT", False)
+        assert (receipt.source_uri, receipt.acquired_at) == (DISQUIET, ACQUIRED)
+        assert (receipt.decode_tool, receipt.decode_version, receipt.decode_command) == ("ffmpeg", "7.1", COMMAND)
+        assert (receipt.rights_record_id, receipt.rights_gate) == ("rights-p01", "reviewed_with_evidence")
+        assert receipt.in_manifest is True
+        assert receipt.release_clearance == "not_assessed"
+
+        dataset, issues = load_dataset(root)
+        assert issues == []
+        assert len(dataset.assets) == len(dataset.rights) == 1
+        asset = dataset.assets[0]
+        assert asset.asset_id == receipt.asset_id
+        assert asset.source_recording_id == receipt.source_recording_id
+        assert asset.song_family_id == receipt.song_family_id
+        assert asset.relative_path == receipt.decoded_relative_path
+        assert asset.sha256_original == receipt.decoded_sha256
+        assert asset.sha256_pcm == expected_pcm_hash == pcm_hash(copied_pcm)
+        assert (asset.source_uri, asset.source_revision, asset.origin_type) == (DISQUIET, "USUAN1500036", "public_dataset")
+        assert asset.acquired_at == receipt.acquired_at
+        assert (asset.sample_rate, asset.channels, asset.duration_seconds) == (44100, 1, 12.0)
+        assert asset.rights_record_id == receipt.rights_record_id == dataset.rights[0].rights_record_id
+        assert asset.parent_asset_ids == []
+        assert dataset.briefs == dataset.clips == dataset.judgments == []
+        assert (root / "rights.jsonl").read_bytes() == rights_before
+        assert (root / "evidence" / "terms.txt").read_bytes() == evidence_before
+
+        before_retry = {path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}
+        with pytest.raises(MusicPrefError) as caught:
+            ingest(config, request)
+        assert caught.value.code == "duplicate_id"
+        assert {path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()} == before_retry
+        assert raw.read_bytes() == raw_before
+        assert decoded.read_bytes() == decoded_before
+        return stored, asset.model_dump(mode="json"), copied_pcm
+
+    left_receipt, left_asset, left_pcm = once("a")
+    right_receipt, right_asset, right_pcm = once("b")
+    np.testing.assert_array_equal(left_pcm, right_pcm)
+    assert left_asset["sha256_pcm"] == right_asset["sha256_pcm"]
+    assert left_receipt["decoded_sha256"] != right_receipt["decoded_sha256"]
+    # Container hashes were checked per run; all semantic receipt/asset fields must match.
+    container_hashes = {"raw_sha256", "decoded_sha256"}
+    assert {k: v for k, v in left_receipt.items() if k not in container_hashes} == {
+        k: v for k, v in right_receipt.items() if k not in container_hashes
+    }
+    assert {k: v for k, v in left_asset.items() if k != "sha256_original"} == {
+        k: v for k, v in right_asset.items() if k != "sha256_original"
+    }
+
+
+def test_malformed_receipt_does_not_copy_audio(tmp_path):
+    incoming = tmp_path / "in"
+    raw, decoded = _pair(incoming, "disquiet")
+    raw_before, decoded_before = raw.read_bytes(), decoded.read_bytes()
+    for name, payload in (("broken", "{"), ("list", "[]")):
+        root = tmp_path / name
+        (root / "receipts").mkdir(parents=True)
+        (root / "receipts" / "bad.json").write_text(payload, encoding="utf-8")
+        config = _config(tmp_path / f"{name}.json", root)
+        with pytest.raises(MusicPrefError) as caught:
+            ingest(config, _request(root, DISQUIET, raw, decoded))
+        assert caught.value.code == "schema_invalid"
+        assert list(root.rglob("*.mp3")) == []
+        assert list(root.rglob("*.wav")) == []
+        assert raw.read_bytes() == raw_before
+        assert decoded.read_bytes() == decoded_before
+
+
+def test_prepare_refuses_a_malformed_clips_manifest(tmp_path):
+    root = tmp_path / "data"
+    incoming = tmp_path / "in"
+    raw, decoded = _pair(incoming, "disquiet", rate=48000, seconds=12)
+    config = _config(tmp_path / "p01.json", root)
+    _rights(root, research="allowed")
+    receipt = ingest(config, _request(root, DISQUIET, raw, decoded, rights_record_id="rights-p01"))
+    (root / "clips.jsonl").write_text("{not json}\n", encoding="utf-8")
+    with pytest.raises(MusicPrefError) as caught:
+        prepare_clip(config, receipt.asset_id, "clip-bad", 0.0, 10.0)
+    assert caught.value.code == "schema_invalid"
+    assert list(root.glob("prepared/*")) == []
+    assert list(root.glob("qc/*")) == []
+    assert (root / "clips.jsonl").read_text(encoding="utf-8") == "{not json}\n"
 
 
 def test_failed_ingest_removes_partial_files(tmp_path):

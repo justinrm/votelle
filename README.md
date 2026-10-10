@@ -22,13 +22,13 @@ The following describes the working tree reviewed on **October 10, 2026**. “Im
 | Identity-safe splitting | Implemented: whole connected components from declared source/song/brief relationships and exact hashes |
 | Encoder interface and feature cache | Implemented library primitives; deterministic 512-dimensional `dummy` / `fixture-v1` encoder only |
 | P-01 real-audio intake | Implemented for three catalog recordings; musical suitability and listening outcomes remain unvalidated |
-| Real CLAP extraction | Planned; no adapter or local memory/throughput benchmark |
+| Real CLAP extraction | No core adapter. Pinned primary checkpoint: single-clip CPU feasibility succeeded. The 20-clip benchmark has not been run |
 | Human feedback collection | Schema and research protocol exist; no completed listening pilot or collection UI |
 | Linear ranking and personalization | Planned; no trained models or adaptation results |
 | Neural challenger | Conditional research comparison, not implemented |
 | Calibration, abstention, inference bundles | Planned; no validated probabilities or release-ready inference artifacts |
 
-The Git-ignored local P-01 intake contains Disquiet, Mesmerize, and Colorless Aura: three assets with research training declared `allowed`, other permissions `unknown`, and release clearance `not_assessed`. Brief, clip, and judgment manifests were empty, with no prepared excerpts. These intake records are neither an experimentally validated dataset nor files supplied by a clone; permission declarations are not independent legal clearance.
+The earlier Git-ignored P-01 intake snapshot recorded Disquiet, Mesmerize, and Colorless Aura: three assets with research training declared `allowed`, other permissions `unknown`, and release clearance `not_assessed`, with empty brief, clip, and judgment manifests. A later technical excerpt was prepared for an isolated CLAP attempt. That preparation is not a completed listening dataset or musical acceptance. [Current status](docs/STATUS.md) records the checked single-clip CPU result. The three-asset intake was not re-audited here. These local records are absent from a fresh clone, and permission declarations are not independent legal clearance.
 
 **Fixture success is not evidence of preference prediction.** Generated tones and synthetic graph edges exercise software contracts; they are neither musical evaluation results nor human preference labels. No improvement over a baseline, calibrated probability, full-song understanding, or lyric-fidelity capability is claimed.
 
@@ -45,7 +45,7 @@ uv sync --locked --group dev
 
 `uv sync` creates the project’s isolated `.venv`, installs the project, and includes pytest through the development group. The core dependencies are NumPy, Pydantic, SciPy, and SoundFile; [pyproject.toml](pyproject.toml) declares requirements and [uv.lock](uv.lock) records resolved versions. SoundFile needs libsndfile, normally bundled with its supported wheels. Environment setup may download Python and dependencies; the fixture workflow itself needs no network, model weights, private audio, credentials, or paid service.
 
-The working-tree distribution and CLI are **`votelle-music`**; the import package is **`votelle_music`**. The naming migration is not fully reconciled: accepted historical records still use `music-pref` / `music_pref`, and the exception class remains `MusicPrefError`. Those names describe earlier artifacts; use the current identifiers for commands. These instructions install from the checkout and do not assume a published PyPI distribution. PyTorch and Transformers are not dependencies of this foundation environment; the proposed CLAP probe belongs in a separate environment.
+The working-tree distribution and CLI are **`votelle-music`**; the import package is **`votelle_music`**. The naming migration is not fully reconciled: accepted historical records still use `music-pref` / `music_pref`, and the exception class remains `MusicPrefError`. Those names describe earlier artifacts; use the current identifiers for commands. These instructions install from the checkout and do not assume a published PyPI distribution. PyTorch and Transformers are not dependencies of this foundation environment; explicitly authorized CLAP feasibility tasks use a separate environment.
 
 ## Offline quick start
 
@@ -62,7 +62,9 @@ The builder creates twenty independent generated-tone assets, declared clips, ri
 
 `validate` emits a JSON report and returns a nonzero exit status for errors. `split` writes component membership, seed, manifest hashes, and provenance. The configuration requests 60/10/10/20 train/validation/calibration/test fractions with seed 17: allocation targets, not implemented training or calibration. Generated audio and `runs/` stay out of Git.
 
-Known test limitation: `test_repeat_ingest_is_deterministic` is timing-sensitive because separately generated float WAVs can contain different header timestamps despite identical PCM. A receipt records the actual file hash, so this fixture can fail a byte-equality assertion.
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs this sequence on Ubuntu with CPython 3.11 and `uv sync --locked`. It does not download models, acquire audio, or use paid compute. A green run is a software check.
+
+The ingestion regression checks semantic identity and matching PCM across deliberately different WAV metadata, while validating each container hash against its own file. Container bytes remain provenance, not an audio-determinism requirement.
 
 ## Implemented foundation
 
@@ -129,14 +131,14 @@ The evidence-based sequence is:
 | Milestone | Gate before advancing |
 | --- | --- |
 | P-01 audition | Finalize a creator brief; select, prepare, and musically accept ten-second excerpts |
-| Bounded CLAP probe | Separate environment, pinned artifacts, cleared inputs, repeatability and memory/throughput measurements; MacBook Neo feasibility remains unmeasured |
+| Bounded CLAP probe | Single-clip CPU feasibility succeeded on October 10 under the existing memory safeguards. The 20-clip benchmark and MPS comparison have not been run. Further expansion needs explicit authorization |
 | P0 listening pilot | Twenty independent brief families, three candidates each, sixty unique comparisons plus ten delayed repeats; verify question meaning and repeatability |
 | Fixed-feature ranking | Establish semantic/compact controls and regularized linear baselines on eligible, grouped data |
 | Conditional neural comparison | Compare on the same locked examples; diagnose labels and representation limits before escalating complexity |
 | Personalization and utility | Test limited-feedback adaptation on future holdouts and selection usefulness in blind listening |
 | Reproducible research release | Confirm artifact-specific permissions; publish permitted artifacts and reproducible methods, including inconclusive or negative results |
 
-No deadlines or positive results are implied. Detailed requirements live in the [architecture analysis](docs/research/03_Audio_Encoder_and_Architecture_Analysis.md), [training and evaluation plan](docs/research/05_Training_and_Evaluation_Research_Plan.md), [P0 listening protocol](docs/research/02_P0_Dataset_and_Listening_Protocol.md), and [unrun CLAP benchmark handoff](docs/research/03_CLAP_Encoder_Feasibility_and_Benchmark_Handoff.md).
+No deadlines or positive results are implied. Detailed requirements live in the [architecture analysis](docs/research/03_Audio_Encoder_and_Architecture_Analysis.md), [training and evaluation plan](docs/research/05_Training_and_Evaluation_Research_Plan.md), [P0 listening protocol](docs/research/02_P0_Dataset_and_Listening_Protocol.md), and [dated CLAP benchmark handoff](docs/research/03_CLAP_Encoder_Feasibility_and_Benchmark_Handoff.md).
 
 ## Reproducibility and data governance
 
@@ -150,7 +152,7 @@ The workflow is local-first. Real audio, embeddings, weights, and generated run 
 
 Start with the source installation and offline quick start above. Read [AGENTS.md](AGENTS.md), [docs/STATUS.md](docs/STATUS.md), and the decision relevant to the proposed change, then inspect the affected source and tests. Useful contributions include stronger contract tests, reproducibility checks, and bounded work on the current development gates. Discuss changes to excerpt length, grouping, rights policy, or label meaning before implementation: these require protocol versioning, not an incidental refactor. Do not add heavyweight encoder dependencies or treat scientific requirements as satisfied by passing tests.
 
-[The research index](docs/research/README.md) explains authority and selective navigation. Source, tests, configuration, and the lock establish executable behavior; decisions establish accepted choices; active research establishes still-unmet scientific requirements. [Project direction](docs/PROJECT_DIRECTION.md) states long-term intent and does not override those sources. The [MVP specification](docs/research/06_MVP_Technical_Specification.md) is a broader contract, not proof that every proposed module exists. [Archived material](docs/archive/README.md) preserves rationale and citations. `graphify-out/` is a generated navigation aid, not a specification; archive material is excluded from routine indexing. Consult original sources rather than treating inferred graph edges as facts.
+[The research index](docs/research/README.md) explains authority and selective navigation. Source, tests, configuration, and the lock establish executable behavior; decisions establish accepted choices; active research establishes still-unmet scientific requirements. [Project direction](docs/PROJECT_DIRECTION.md) states long-term intent and does not override those sources. The [MVP specification](docs/research/06_MVP_Technical_Specification.md) is a broader contract, not proof that every proposed module exists. [Archived material](docs/archive/README.md) preserves rationale and citations. `graphify-out/` is an optional local navigation aid, not a specification and not part of a fresh checkout. Generated graph files are gitignored. Archive material is excluded from routine indexing. Consult original sources rather than treating inferred graph edges as facts. Developers can regenerate a local graph with `graphify update .` when the CLI is installed.
 
 ## Licensing and acknowledgments
 

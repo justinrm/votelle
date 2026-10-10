@@ -25,11 +25,21 @@ uv run votelle-music split --config configs/foundation.json --output runs/split.
 uv run pytest -q
 ```
 
-`test_repeat_ingest_is_deterministic` can fail when two generated WAV headers differ by timestamp even though the PCM matches. A green run is a software check. Fixture success is not evidence of preference prediction.
+`test_repeat_ingest_is_deterministic` compares semantic identity and PCM across different WAV metadata, checks each file's provenance hash, and rejects duplicate overwrites. A green run is a software check. Fixture success is not evidence of preference prediction.
+
+The same sequence is [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+
+## Model downloads and execution
+
+Do not download model weights during normal development. Do not install PyTorch or Transformers into the core Votelle environment. Do not begin training, model integration, or GPU benchmarking without task-specific authorization.
+
+An explicitly authorized encoder feasibility task may use a separate environment and download only the named, pinned, approved model files. Verify checkpoint hashes before loading, follow documented security and resource safeguards, keep weights, environments, logs, and derived artifacts out of Git, and stop at the specific scope of the approved task.
+
+This exception is not blanket permission for future downloads, model execution, paid compute, remote uploads, or expanded experiments; each requires explicit task-specific authorization. A documentation or maintenance task does not itself authorize downloads or model execution.
 
 ## Do not
 
-- Do not download model weights, train, add a generator, or add a UI.
+- Do not add a generator or UI.
 - Do not treat fixture tests as evidence of preference prediction.
 - A change to excerpt length, grouping, rights, or label meaning needs a new protocol version. Do not make that change as an incidental refactor.
 - Decision records still say `music-pref` / `music_pref`. The exception class remains `MusicPrefError`. Do not rename them in a documentation pass.
@@ -45,7 +55,7 @@ Apache-2.0 covers original source code and project documentation. It does not cl
 
 ## Authority
 
-The order is in `docs/research/README.md`. Short form: code, tests, configs, and `uv.lock` say what runs; `docs/decisions/` are the accepted choices; `docs/research/` holds scientific requirements the tests do not retire; `docs/archive/` is earlier rationale; `graphify-out/` is a map. An inferred graph edge is a hint. Open the `source_file` and check it.
+The order is in `docs/research/README.md`. Short form: code, tests, configs, and `uv.lock` say what runs; `docs/decisions/` are the accepted choices; `docs/research/` holds scientific requirements the tests do not retire; `docs/archive/` is earlier rationale; `graphify-out/` is an optional local map and is absent from a fresh checkout. An inferred graph edge is a hint. Open the `source_file` and check it.
 
 `docs/PROJECT_DIRECTION.md` states long-term intent. It does not expand protocol v0.1 or override the order above.
 
