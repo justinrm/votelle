@@ -2,6 +2,8 @@
 
 Protocol v0.1 notes that still govern method, rights, and promotion gates. Passing tests do not retire a requirement that the code has not implemented.
 
+[Project direction](../PROJECT_DIRECTION.md) describes long-term project intent. It does not change these notes, the decisions, or what the software does.
+
 Labels below are an index. The documents themselves were not rewritten, so a section inside a file may still say "proposal" or "verified" in its own words.
 
 | File | Index |
@@ -20,9 +22,10 @@ Accepted engineering choices that narrowed these notes are in `docs/decisions/`.
 
 1. Source, tests, `configs/`, and `uv.lock` establish what the software does.
 2. `docs/decisions/` establish accepted engineering choices.
-3. This directory establishes scientific requirements and gates the code does not yet meet.
-4. `docs/archive/` is evidence and earlier rationale. It does not override a later decision or the code.
-5. `graphify-out/` is a navigation map. An inferred edge is not a project fact. Follow `source_file` and check the file.
+3. This directory establishes scientific requirements and experimental gates the code does not yet meet.
+4. `docs/PROJECT_DIRECTION.md` states long-term project intent. It does not override items 1–3, change protocol v0.1, or turn a hypothesis into an implemented capability.
+5. `docs/archive/` is evidence and earlier rationale. It does not override a later decision or the code.
+6. `graphify-out/` is a navigation map. An inferred edge is not a project fact. Follow `source_file` and check the file.
 
 ## Graphify
 

@@ -47,6 +47,8 @@ Apache-2.0 covers original source code and project documentation. It does not cl
 
 The order is in `docs/research/README.md`. Short form: code, tests, configs, and `uv.lock` say what runs; `docs/decisions/` are the accepted choices; `docs/research/` holds scientific requirements the tests do not retire; `docs/archive/` is earlier rationale; `graphify-out/` is a map. An inferred graph edge is a hint. Open the `source_file` and check it.
 
+`docs/PROJECT_DIRECTION.md` states long-term intent. It does not expand protocol v0.1 or override the order above.
+
 Consult `docs/archive/` only for provenance, a citation, or a contradiction. Do not load the whole research package by default.
 
 ## What to open

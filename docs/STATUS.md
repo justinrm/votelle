@@ -2,6 +2,8 @@
 
 Votelle asks whether a compact model can learn one creator's musical preferences, and separately whether a clip follows that creator's brief, from comparative listening judgments. A negative result is a valid outcome. The listener keeps the final choice.
 
+That question is the current experiment. [Project direction](PROJECT_DIRECTION.md) records the longer-term research intent. This file records implementation and research status. It does not mark a hypothesis as a result.
+
 Research protocol **v0.1**. This file is the resumption note. Authority order is in `docs/research/README.md`.
 
 The human-readable name is Votelle. This tree's package is `votelle_music` and the CLI is `votelle-music`. Decision records and the archived handoff still say `music-pref` / `music_pref`. `MusicPrefError` is still the exception class. That rename is a separate task.
