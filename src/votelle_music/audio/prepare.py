@@ -23,7 +23,7 @@ from votelle_music.audio.loudness import (
     true_peak_linear,
 )
 from votelle_music.audio.measure import is_digital_silence, measure_crop
-from votelle_music.schemas import MusicPrefError, canonical_bytes, sha256_hex
+from votelle_music.schemas import VotelleError, canonical_bytes, sha256_hex
 
 TARGET_RATE = 48000
 TARGET_SAMPLES = 480_000
@@ -90,31 +90,31 @@ def preprocessing_document(profile: str) -> dict:
             }
         )
     elif profile != FIXTURE_PROFILE:
-        raise MusicPrefError("normalization_profile_rejected", PROFILE_REJECTION, field="normalization_profile")
+        raise VotelleError("normalization_profile_rejected", PROFILE_REJECTION, field="normalization_profile")
     return payload
 
 
 def read_audio(path: Path) -> tuple[np.ndarray, int]:
     if path.suffix.lower() not in {".wav", ".flac"}:
-        raise MusicPrefError("unsupported_format", "Use WAV or FLAC.", field="relative_path")
+        raise VotelleError("unsupported_format", "Use WAV or FLAC.", field="relative_path")
     try:
         data, sample_rate = sf.read(path, always_2d=True, dtype="float64")
     except Exception as exc:
-        raise MusicPrefError(
+        raise VotelleError(
             "unsupported_format",
             f"Could not decode audio: {exc}",
             field="relative_path",
         ) from exc
     if not np.isfinite(data).all():
-        raise MusicPrefError("nonfinite_audio", "Audio contains NaN or Inf.", field="relative_path")
+        raise VotelleError("nonfinite_audio", "Audio contains NaN or Inf.", field="relative_path")
     return data, int(sample_rate)
 
 
 def crop_samples(data: np.ndarray, sample_rate: int, start_seconds: float, end_seconds: float) -> np.ndarray:
     if end_seconds <= start_seconds:
-        raise MusicPrefError("bad_bounds", "end_seconds must be greater than start_seconds.", field="end_seconds")
+        raise VotelleError("bad_bounds", "end_seconds must be greater than start_seconds.", field="end_seconds")
     if abs((end_seconds - start_seconds) - EXCERPT_SECONDS) > DURATION_TOLERANCE:
-        raise MusicPrefError(
+        raise VotelleError(
             "duration_not_ten_seconds",
             "v0.1 clips must be 10 seconds within 1 ms. Do not pad or trim.",
             field="end_seconds",
@@ -122,7 +122,7 @@ def crop_samples(data: np.ndarray, sample_rate: int, start_seconds: float, end_s
     start = int(round(start_seconds * sample_rate))
     end = int(round(end_seconds * sample_rate))
     if start < 0 or end > data.shape[0] or end <= start:
-        raise MusicPrefError("bad_bounds", "Clip bounds fall outside the decoded asset.", field="start_seconds")
+        raise VotelleError("bad_bounds", "Clip bounds fall outside the decoded asset.", field="start_seconds")
     return data[start:end]
 
 
@@ -131,12 +131,12 @@ def _reject_profile(profile: str, level_matched: bool) -> None:
         return
     if profile == GAIN_PROFILE and level_matched:
         return
-    raise MusicPrefError("normalization_profile_rejected", PROFILE_REJECTION, field="normalization_profile")
+    raise VotelleError("normalization_profile_rejected", PROFILE_REJECTION, field="normalization_profile")
 
 
 def _downmix(excerpt: np.ndarray) -> tuple[np.ndarray, float]:
     if excerpt.ndim != 2 or excerpt.shape[1] < 1:
-        raise MusicPrefError("invalid_audio", "Expected audio shaped (samples, channels).", field="relative_path")
+        raise VotelleError("invalid_audio", "Expected audio shaped (samples, channels).", field="relative_path")
     if excerpt.shape[1] == 1:
         return np.ascontiguousarray(excerpt[:, 0], dtype=np.float64), 1.0
     mono = np.ascontiguousarray(excerpt.mean(axis=1), dtype=np.float64)
@@ -145,7 +145,7 @@ def _downmix(excerpt: np.ndarray) -> tuple[np.ndarray, float]:
     ratio = 1.0 if channel_power == 0.0 else mono_power / channel_power
     cancelled = is_digital_silence(mono) and not is_digital_silence(excerpt)
     if cancelled or (ratio < PHASE_RATIO_MIN and not is_digital_silence(excerpt)):
-        raise MusicPrefError(
+        raise VotelleError(
             "phase_cancellation",
             "Downmix cancelled the channels. Check polarity. Stereo preference is outside this pilot.",
             field="relative_path",
@@ -163,7 +163,7 @@ def _apply_gain(mono: np.ndarray) -> tuple[np.ndarray, float, float, float, str,
     reference = integrated if math.isfinite(integrated) else ungated
     peak = true_peak_linear(mono)
     if peak <= 0.0 or not math.isfinite(reference):
-        raise MusicPrefError(
+        raise VotelleError(
             "digital_silence",
             "Digital silence is invalid. This check does not score quiet music.",
             field="relative_path",
@@ -202,15 +202,15 @@ def prepare_excerpt(
 ) -> PreparedExcerpt:
     _reject_profile(profile, level_matched)
     if not isinstance(sample_rate, (int, np.integer)) or int(sample_rate) <= 0:
-        raise MusicPrefError("invalid_audio", "Sample rate must be a positive integer.", field="sample_rate")
+        raise VotelleError("invalid_audio", "Sample rate must be a positive integer.", field="sample_rate")
     audio = np.asarray(data)
     if audio.ndim != 2 or audio.shape[1] < 1:
-        raise MusicPrefError("invalid_audio", "Expected audio shaped (samples, channels).", field="relative_path")
+        raise VotelleError("invalid_audio", "Expected audio shaped (samples, channels).", field="relative_path")
     if not np.isfinite(audio).all():
-        raise MusicPrefError("nonfinite_audio", "Audio contains NaN or Inf.", field="relative_path")
+        raise VotelleError("nonfinite_audio", "Audio contains NaN or Inf.", field="relative_path")
     excerpt = crop_samples(audio, int(sample_rate), start_seconds, end_seconds)
     if is_digital_silence(excerpt):
-        raise MusicPrefError(
+        raise VotelleError(
             "digital_silence",
             "Digital silence is invalid. This check does not score quiet music.",
             field="relative_path",
@@ -220,7 +220,7 @@ def prepare_excerpt(
     diagnostics.append(_metric("downmix_energy_ratio", ratio, "1", DOWNMIX_METHOD))
     prepared = np.asarray(resample(mono, TARGET_SAMPLES), dtype=np.float64).reshape(-1)
     if prepared.shape != (TARGET_SAMPLES,) or not np.isfinite(prepared).all():
-        raise MusicPrefError("nonfinite_audio", "Resampling produced a non-finite sample.", field="relative_path")
+        raise VotelleError("nonfinite_audio", "Resampling produced a non-finite sample.", field="relative_path")
     gain_db = 0.0
     integrated_lufs = None
     true_peak_dbtp = None
@@ -229,7 +229,7 @@ def prepare_excerpt(
     if profile == GAIN_PROFILE:
         prepared, gain, integrated_lufs, true_peak_dbtp, limited_by, mismatch = _apply_gain(prepared)
         if prepared.shape != (TARGET_SAMPLES,) or not np.isfinite(prepared).all():
-            raise MusicPrefError("nonfinite_audio", "Gain produced a non-finite sample.", field="relative_path")
+            raise VotelleError("nonfinite_audio", "Gain produced a non-finite sample.", field="relative_path")
         gain_db = 20.0 * math.log10(gain)
         if not math.isfinite(integrated_lufs):
             integrated_lufs = None
@@ -265,7 +265,7 @@ def waveform_for_encoder(excerpt: PreparedExcerpt) -> np.ndarray:
     """Float32 copy of the samples a listener hears. One buffer for a future CLAP call."""
     wave = np.ascontiguousarray(excerpt.samples, dtype=np.float32)
     if wave.shape != (TARGET_SAMPLES,) or not np.isfinite(wave).all():
-        raise MusicPrefError(
+        raise VotelleError(
             "invalid_audio",
             "Encoder waveform must be 480000 finite float32 samples.",
             field="relative_path",

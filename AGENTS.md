@@ -42,8 +42,8 @@ This exception is not blanket permission for future downloads, model execution, 
 - Do not add a generator or UI.
 - Do not treat fixture tests as evidence of preference prediction.
 - A change to excerpt length, grouping, rights, or label meaning needs a new protocol version. Do not make that change as an incidental refactor.
-- Decision records still say `music-pref` / `music_pref`. The exception class remains `MusicPrefError`. Do not rename them in a documentation pass.
-- `docs/research/06_MVP_Technical_Specification.md` is a broader contract, not a list of implemented modules.
+- Accepted decisions 0001–0003 and the archive still say `music-pref` / `music_pref`. The exception class is `VotelleError`. Do not rename those historical records in a documentation pass. Decision 0004 records the naming migration.
+- `docs/research/05_MVP_SPECIFICATION.md` is the implementation-aware contract. The 9 October specification in `docs/archive/research-preconsolidation-2026-10/` is not a list of implemented modules.
 - Ingest records a decode command. It does not run that command and it does not download audio.
 - Do not run `split` on the P-01 acquisition pilot.
 
@@ -66,11 +66,12 @@ Consult `docs/archive/` only for provenance, a citation, or a contradiction. Do 
 | Task | Open |
 |---|---|
 | Audio preparation and normalization | `docs/decisions/0002-audition-normalization.md`, then `src/votelle_music/audio/` |
-| Rights and dataset acquisition | `docs/decisions/0001-foundation-choices.md`, `docs/decisions/0003-p01-ingestion.md`, `docs/research/01_Data_Feasibility_and_Rights_Audit.md` |
-| CLAP encoder integration | `docs/decisions/0002-audition-normalization.md`, `docs/research/03_CLAP_Encoder_Feasibility_and_Benchmark_Handoff.md` |
-| Human listening experiments | `docs/research/02_P0_Dataset_and_Listening_Protocol.md`, `docs/research/04_Dataset_and_Human_Feedback_Strategy.md` |
-| Training and evaluation | `docs/research/05_Training_and_Evaluation_Research_Plan.md`, `docs/decisions/0001-foundation-choices.md` |
-| Scientific methodology and prior art | `docs/research/03_Audio_Encoder_and_Architecture_Analysis.md`. For a citation or a prior-art dispute, also `docs/archive/research-v0.1/02_Literature_and_Competitive_Landscape.md` and `10_Source_Register.md` |
+| Rights and dataset acquisition | `docs/decisions/0001-foundation-choices.md`, `docs/decisions/0003-p01-ingestion.md`, `docs/research/01_DATA_GOVERNANCE.md` |
+| CLAP encoder integration | `docs/decisions/0002-audition-normalization.md`, `docs/research/03_ENCODER_AND_MODEL.md` |
+| Human listening experiments | `docs/research/02_P0_LISTENING_PROTOCOL.md` |
+| Training and evaluation | `docs/research/04_TRAINING_AND_EVALUATION.md`, `docs/decisions/0001-foundation-choices.md` |
+| Scientific methodology and prior art | `docs/research/03_ENCODER_AND_MODEL.md` and `docs/research/REFERENCES.md`. For a citation or a prior-art dispute, also `docs/archive/research-v0.1/02_Literature_and_Competitive_Landscape.md` and `docs/archive/research-v0.1/10_Source_Register.md` |
+| Implementation contract | `docs/research/05_MVP_SPECIFICATION.md`, then the source it names |
 | Schemas and manifests | `src/votelle_music/schemas.py`, then `src/votelle_music/data/` |
 | CLI | `src/votelle_music/cli.py` |
 | Identity and splitting | `src/votelle_music/data/identity.py`, `src/votelle_music/data/splits.py` |

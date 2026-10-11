@@ -24,7 +24,7 @@ def sha256_hex(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-class MusicPrefError(Exception):
+class VotelleError(Exception):
     def __init__(self, code: str, remediation: str, *, record_id: str | None = None, field: str = ""):
         super().__init__(f"{code}: {remediation}")
         self.code = code

@@ -6,7 +6,7 @@ That question is the current experiment. [Project direction](PROJECT_DIRECTION.m
 
 Research protocol **v0.1**. This file is the resumption note. Authority order is in `docs/research/README.md`.
 
-The human-readable name is Votelle. This tree's package is `votelle_music` and the CLI is `votelle-music`. Decision records and the archived handoff still say `music-pref` / `music_pref`. `MusicPrefError` is still the exception class. That rename is a separate task.
+The human-readable name is Votelle. This tree's package is `votelle_music`, the CLI is `votelle-music`, and the exception class is `VotelleError`. Accepted decisions 0001–0003 and the archived handoff still say `music-pref` / `music_pref`. Those historical names stay in place. Decision 0004 records the migration.
 
 ## Licensing
 
@@ -52,7 +52,7 @@ The earlier local intake snapshot recorded Disquiet, Mesmerize, and Colorless Au
 
 The technical input is the Disquiet 30–40 second excerpt: mono float32, 48 kHz, 480,000 samples. Recomputed PCM SHA-256 `f78adc9e79b8bc0a115df25ae981d7daccef63d1c08924cf3b07c1b116fd4507`. Observed mel shape `[1, 1, 1001, 64]`. The separate environment is Python 3.11.16, PyTorch 2.14.1, and Transformers 5.19.0. MPS was built and available; the run stayed on CPU.
 
-An earlier attempt the same day stopped on yellow pressure sustained for 10 seconds, worker status `-9`, polled peak 151,371,776 bytes. The retained prior directory has no completed `cold.json`. Those logs remain in `retries/20261010-144504/prior/`. The dated [probe handoff](research/03_CLAP_Encoder_Feasibility_and_Benchmark_Handoff.md) is unchanged and still states its pre-attempt contract. Decision 0002 still prohibits naming CLAP in the foundation config. There is no core adapter.
+An earlier attempt the same day stopped on yellow pressure sustained for 10 seconds, worker status `-9`, polled peak 151,371,776 bytes. The retained prior directory has no completed `cold.json`. Those logs remain in `retries/20261010-144504/prior/`. The dated [probe handoff](archive/research-preconsolidation-2026-10/03_CLAP_Encoder_Feasibility_and_Benchmark_Handoff.md) is unchanged and still states its pre-attempt contract. Decision 0002 still prohibits naming CLAP in the foundation config. There is no core adapter.
 
 **20-clip benchmark: not run.** Distinct-clip throughput, the embedding cache, and CPU/MPS parity are unmeasured.
 
@@ -71,6 +71,8 @@ These are encoder similarities for one technical excerpt. They are not listener 
 
 A cleanup pass later on October 10, 2026 recomputed the checkpoint SHA-256 and byte length from the local `pytorch_model.bin`, and the PCM hash of `data/probes/disquiet_0030_0040/waveform.wav`. Both matched this record, as did the four cosine values in `semantic/20261010-150249/result.json`. The model was not reloaded.
 
+**Three-clip runner is ready and has not been executed.** `runs/clap-cpu-probe/semantic_three.py` reuses the single-clip supervisor limits, the pinned `larger_clap_music` checkpoint, and the `pooler_output` call. A no-model check confirmed the three `data/probes/clap-tech-3` excerpts and the checkpoint hash. No three-clip cosine matrix is recorded.
+
 ## Open
 
 These remain unresolved. Archiving the risk note did not close them.
@@ -79,13 +81,13 @@ These remain unresolved. Archiving the risk note did not close them.
 - No finalized creator brief, no musically accepted 10-second crops, no human judgments; a technically prepared probe input does not close these gates.
 - Release permissions for P-01 are `unknown`, so `commercial_ready` is not available.
 - Whether frozen CLAP can carry the preference signal is untested. The four-text cosine check records encoder similarities for one technical excerpt and supplies no listener judgment.
-- Package naming is inconsistent, as noted above.
+- Historical records still use `music-pref` / `music_pref`. Live code uses `votelle_music`, `votelle-music`, and `VotelleError`. Decision 0004 records that split.
 
 `docs/decisions/0002-audition-normalization.md` is the loudness procedure. The archived feasibility handoff still describes that procedure as a proposal. Do not merge those texts.
 
 ## Next
 
-Finalize the creator brief and musical acceptance of P-01 excerpts. Single-clip CPU feasibility and the four-text cosine check are recorded above. The 20-clip benchmark, MPS, training, and a core adapter wait for a separate explicit authorization. The safeguards remain 4,500,000,000 bytes RSS, an immediate stop on red pressure, a stop on yellow pressure sustained for 10 seconds, and a stop on 128 MiB swap growth over 15 seconds.
+Finalize the creator brief and musical acceptance of P-01 excerpts. Single-clip CPU feasibility and the four-text cosine check are recorded above. The three-clip diagnostic runner is written and has not been started. The 20-clip benchmark, MPS, training, and a core adapter wait for a separate explicit authorization. The safeguards remain 4,500,000,000 bytes RSS, an immediate stop on red pressure, a stop on yellow pressure sustained for 10 seconds, and a stop on 128 MiB swap growth over 15 seconds.
 
 ## Verification
 
@@ -97,9 +99,12 @@ Checked from this checkout on October 10, 2026 with uv 0.12.21 and CPython 3.11.
 - Wheel and sdist `votelle_music-0.1.0`: package `votelle_music`, console script `votelle-music`, `License-Expression: Apache-2.0`, and the license file. The packages contain no audio or weights. Runtime dependencies remain NumPy, Pydantic, SciPy, and SoundFile.
 - `.github/workflows/ci.yml` runs that sequence for pushes and pull requests to `main`, on Ubuntu, with CPython 3.11 and the lockfile. The workflow was checked locally. Hosted GitHub Actions has not run it.
 - The recorded CLAP checkpoint SHA-256 and byte length, the probe PCM hash, and the four cosine values matched the local files. The model was not reloaded.
+- Naming migration checked October 10, 2026: locked sync, 20-family fixture, `votelle-music validate` (0 issues), `votelle-music split` (seed 17; 12 train, 2 validation, 2 calibration, 4 test), and the tracked pytest suite (77 passed). Live imports use `VotelleError`. `git diff --check` was clean.
 
 ## Where to look
 
-- Decisions: `docs/decisions/0001-foundation-choices.md`, `0002-audition-normalization.md`, `0003-p01-ingestion.md`
+- Decisions: `docs/decisions/0001-foundation-choices.md`, `0002-audition-normalization.md`, `0003-p01-ingestion.md`, `0004-votelle-naming.md`
+- Documentation map: `docs/README.md`
 - Active research: `docs/research/README.md`
-- Open risks and citations: `docs/archive/README.md`
+- Open risks: `docs/archive/research-v0.1/09_Research_Risks_and_Open_Questions.md`
+- Citations: `docs/research/REFERENCES.md`. The dated original register remains `docs/archive/research-v0.1/10_Source_Register.md`

@@ -6,7 +6,7 @@ from votelle_music.data.manifest import load_config, validate
 from votelle_music.features.base import FeatureError, l2_normalize
 from votelle_music.features.cache import feature_cache_key, load_feature, store_feature
 from votelle_music.features.dummy import DummyEncoder
-from votelle_music.schemas import MusicPrefError
+from votelle_music.schemas import VotelleError
 from tests.fixtures.build import build_dataset, make_brief, write_config
 
 
@@ -48,7 +48,7 @@ def test_normalization_rejects_zero_and_wrong_dimension():
     with pytest.raises(FeatureError) as dimension:
         l2_normalize(np.ones(511))
     assert dimension.value.code == "encoder_dimension"
-    with pytest.raises(MusicPrefError) as nonfinite:
+    with pytest.raises(VotelleError) as nonfinite:
         l2_normalize(np.full(512, np.nan))
     assert nonfinite.value.code == "nonfinite_embedding"
 

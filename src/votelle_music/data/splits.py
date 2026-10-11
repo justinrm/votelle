@@ -8,13 +8,13 @@ from pathlib import Path
 
 from votelle_music.data.identity import Component, connected_components
 from votelle_music.data.manifest import Dataset, dataset_root, load_dataset, validate
-from votelle_music.schemas import FoundationConfig, MusicPrefError, SplitFractions, canonical_bytes, sha256_hex
+from votelle_music.schemas import FoundationConfig, VotelleError, SplitFractions, canonical_bytes, sha256_hex
 
 SPLIT_ORDER = ("train", "validation", "calibration", "test")
 GROUPING_POLICY = "component_v1"
 
 
-class SplitError(MusicPrefError):
+class SplitError(VotelleError):
     pass
 
 

@@ -8,10 +8,10 @@ from typing import Protocol
 import numpy as np
 
 from votelle_music.audio.prepare import PreparedExcerpt
-from votelle_music.schemas import Brief, EncoderSpec, MusicPrefError
+from votelle_music.schemas import Brief, EncoderSpec, VotelleError
 
 
-class FeatureError(MusicPrefError):
+class FeatureError(VotelleError):
     pass
 
 

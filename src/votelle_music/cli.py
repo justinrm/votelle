@@ -12,7 +12,7 @@ from pydantic import ValidationError
 from votelle_music.data.ingest import IngestRequest, ingest, prepare_clip
 from votelle_music.data.manifest import load_config, report_bytes, validate
 from votelle_music.data.splits import SplitError, write_split
-from votelle_music.schemas import MusicPrefError, canonical_bytes
+from votelle_music.schemas import VotelleError, canonical_bytes
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -69,7 +69,7 @@ def main(argv: list[str] | None = None) -> int:
                 )
             else:
                 result = prepare_clip(config, args.asset_id, args.clip_id, args.start, args.end)
-        except MusicPrefError as exc:
+        except VotelleError as exc:
             print(json.dumps({"code": exc.code, "remediation": exc.remediation}), file=sys.stderr)
             return 1
         sys.stdout.buffer.write(canonical_bytes(result.model_dump(mode="json")))

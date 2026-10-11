@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from votelle_music.schemas import MusicPrefError
+from votelle_music.schemas import VotelleError
 
 
 def resolve_under_root(root: Path, relative: str) -> Path:
     path = Path(relative)
     if not relative or path.is_absolute() or ".." in path.parts:
-        raise MusicPrefError(
+        raise VotelleError(
             "path_escape",
             "Paths must be relative to the dataset root. A manifest cannot leave that root.",
             field="relative_path",
@@ -18,7 +18,7 @@ def resolve_under_root(root: Path, relative: str) -> Path:
     root_resolved = root.resolve()
     candidate = (root_resolved / path).resolve()
     if candidate != root_resolved and root_resolved not in candidate.parents:
-        raise MusicPrefError(
+        raise VotelleError(
             "path_escape",
             "Paths must be relative to the dataset root. A manifest cannot leave that root.",
             field="relative_path",

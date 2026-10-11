@@ -19,7 +19,7 @@ from votelle_music.audio.prepare import (
 from votelle_music.data.manifest import load_config, validate
 from votelle_music.features.cache import feature_cache_key
 from votelle_music.features.dummy import DummyEncoder
-from votelle_music.schemas import MusicPrefError, canonical_bytes, sha256_hex
+from votelle_music.schemas import VotelleError, canonical_bytes, sha256_hex
 from tests.fixtures.build import build_dataset, foundation_config, write_config
 
 RATE = 48000
@@ -92,26 +92,26 @@ def test_quiet_tone_above_digital_silence_can_still_be_matched():
 
 def test_gain_path_rejects_silent_nonfinite_invalid_and_out_of_bounds(tmp_path):
     tone = _sine(0.2)
-    with pytest.raises(MusicPrefError) as silent:
+    with pytest.raises(VotelleError) as silent:
         _prepare(np.zeros_like(tone))
     assert silent.value.code == "digital_silence"
-    with pytest.raises(MusicPrefError) as nonfinite:
+    with pytest.raises(VotelleError) as nonfinite:
         dirty = tone.copy()
         dirty[10, 0] = np.nan
         _prepare(dirty)
     assert nonfinite.value.code == "nonfinite_audio"
-    with pytest.raises(MusicPrefError) as flat:
+    with pytest.raises(VotelleError) as flat:
         _prepare(tone[:, 0])
     assert flat.value.code == "invalid_audio"
-    with pytest.raises(MusicPrefError) as bounds:
+    with pytest.raises(VotelleError) as bounds:
         prepare_excerpt(tone, RATE, 5.0, 15.0, "gain_lufs_v1", True)
     assert bounds.value.code == "bad_bounds"
-    with pytest.raises(MusicPrefError) as short:
+    with pytest.raises(VotelleError) as short:
         prepare_excerpt(tone, RATE, 0.0, 9.0, "gain_lufs_v1", True)
     assert short.value.code == "duration_not_ten_seconds"
     bogus = tmp_path / "clip.mp3"
     bogus.write_bytes(b"not audio")
-    with pytest.raises(MusicPrefError) as invalid:
+    with pytest.raises(VotelleError) as invalid:
         read_audio(bogus)
     assert invalid.value.code == "unsupported_format"
 
@@ -119,7 +119,7 @@ def test_gain_path_rejects_silent_nonfinite_invalid_and_out_of_bounds(tmp_path):
 def test_inverted_stereo_is_phase_cancellation_not_a_level_match():
     tone = _sine(0.2)[:, 0]
     stereo = np.column_stack([tone, -tone])
-    with pytest.raises(MusicPrefError) as cancelled:
+    with pytest.raises(VotelleError) as cancelled:
         _prepare(stereo)
     assert cancelled.value.code == "phase_cancellation"
 

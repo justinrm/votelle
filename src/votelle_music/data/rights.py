@@ -10,7 +10,7 @@ from votelle_music.schemas import (
     Asset,
     Brief,
     Judgment,
-    MusicPrefError,
+    VotelleError,
     Permission,
     RightsRecord,
     ValidationIssue,
@@ -71,7 +71,7 @@ def _check_record(root: Path, record: RightsRecord, policy: str) -> list[Validat
     if record.evidence_path:
         try:
             path = resolve_under_root(root, record.evidence_path)
-        except MusicPrefError as exc:
+        except VotelleError as exc:
             issues.append(error(record.rights_record_id, "evidence_path", exc.code, exc.remediation))
         else:
             if not path.is_file():
