@@ -28,7 +28,7 @@ from votelle_music.schemas import (
     SCHEMA_VERSION,
     Asset,
     Clip,
-    MusicPrefError,
+    VotelleError,
     canonical_bytes,
     sha256_hex,
 )
@@ -137,7 +137,7 @@ def _looks_like_mp3(header: bytes) -> bool:
 
 def _require_text(value: str, field: str) -> str:
     if not value or not value.strip():
-        raise MusicPrefError(
+        raise VotelleError(
             "missing_provenance",
             f"{field} is required. It is recorded and is not executed.",
             field=field,
@@ -160,9 +160,9 @@ def _run(work):
         return work(created, restores)
     except Exception as exc:
         _rollback(created, restores)
-        if isinstance(exc, MusicPrefError):
+        if isinstance(exc, VotelleError):
             raise
-        raise MusicPrefError(
+        raise VotelleError(
             "ingest_failed",
             "Removed partial files. Fix the dataset path and retry.",
         ) from exc
@@ -170,7 +170,7 @@ def _run(work):
 
 def _write_new(path: Path, data: bytes, created: list[Path]) -> None:
     if path.exists():
-        raise MusicPrefError(
+        raise VotelleError(
             "already_exists",
             f"{path.name} already exists. Refusing to overwrite.",
             field="relative_path",
@@ -206,13 +206,13 @@ def _load_receipts(root: Path) -> list[dict]:
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
-            raise MusicPrefError(
+            raise VotelleError(
                 "schema_invalid",
                 f"{path.name} is not valid JSON. Fix or remove that receipt before ingesting.",
                 field="receipts",
             ) from exc
         if not isinstance(payload, dict):
-            raise MusicPrefError(
+            raise VotelleError(
                 "schema_invalid",
                 f"{path.name} must be a JSON object. Fix or remove that receipt before ingesting.",
                 field="receipts",
@@ -225,11 +225,11 @@ def _family_review(path: Path | None) -> FamilyReview | None:
     if path is None:
         return None
     if not path.is_file():
-        raise MusicPrefError("invalid_source", "Family review file is missing.", field="song_family_id")
+        raise VotelleError("invalid_source", "Family review file is missing.", field="song_family_id")
     try:
         return FamilyReview.model_validate(json.loads(path.read_text(encoding="utf-8")))
     except (json.JSONDecodeError, ValidationError) as exc:
-        raise MusicPrefError("schema_invalid", "Family review file is invalid.", field="song_family_id") from exc
+        raise VotelleError("schema_invalid", "Family review file is invalid.", field="song_family_id") from exc
 
 
 def _song_family_id(uri: str, review: FamilyReview | None) -> str:
@@ -239,20 +239,20 @@ def _song_family_id(uri: str, review: FamilyReview | None) -> str:
     if not groups:
         return _stable_id("song", [uri])
     if len(groups) > 1:
-        raise MusicPrefError(
+        raise VotelleError(
             "duplicate_id",
             "Source URI is in more than one song-family group.",
             field="song_family_id",
         )
     group = groups[0]
     if len(group) < 2 or len(set(group)) != len(group):
-        raise MusicPrefError(
+        raise VotelleError(
             "invalid_source",
             "A song-family group needs two distinct catalog recordings.",
             field="song_family_id",
         )
     if any(item not in P01_CATALOG for item in group):
-        raise MusicPrefError(
+        raise VotelleError(
             "invalid_source",
             "Song-family review contains a URI outside the P-01 catalog.",
             field="source_uri",
@@ -280,7 +280,7 @@ def _rights_gate(root: Path, rights_id: str | None) -> tuple[str, str]:
         return "provisional_review", "A local evidence file is required. A URL alone is not eligibility."
     try:
         evidence = resolve_under_root(root, match.evidence_path)
-    except MusicPrefError:
+    except VotelleError:
         return "provisional_review", "Evidence path escapes the dataset root. Staged and ineligible."
     if not evidence.is_file() or file_sha256(evidence) != match.evidence_sha256:
         return "provisional_review", "Evidence file is missing or its hash does not match. Staged and ineligible."
@@ -295,7 +295,7 @@ def _reject_duplicates(asset_id, uri, recording_id, raw_sha, decoded_sha, pcm_sh
         same_identity = asset.asset_id == asset_id or asset.source_uri == uri or asset.source_recording_id == recording_id
         same_bytes = asset.sha256_original == decoded_sha or asset.sha256_pcm == pcm_sha
         if same_identity or same_bytes:
-            raise MusicPrefError(
+            raise VotelleError(
                 "duplicate_id",
                 "That source, recording identity, or decoded PCM is already ingested.",
                 record_id=asset.asset_id,
@@ -309,7 +309,7 @@ def _reject_duplicates(asset_id, uri, recording_id, raw_sha, decoded_sha, pcm_sh
         )
         same_bytes = receipt.get("raw_sha256") == raw_sha or receipt.get("decoded_sha256") == decoded_sha
         if same_identity or same_bytes:
-            raise MusicPrefError(
+            raise VotelleError(
                 "duplicate_id",
                 "That source, recording identity, or file hash is already in a receipt.",
                 record_id=str(receipt.get("asset_id") or ""),
@@ -320,7 +320,7 @@ def _reject_duplicates(asset_id, uri, recording_id, raw_sha, decoded_sha, pcm_sh
 def ingest(config, request: IngestRequest) -> AcquisitionReceipt:
     entry = P01_CATALOG.get(request.source_uri)
     if entry is None:
-        raise MusicPrefError(
+        raise VotelleError(
             "invalid_source",
             "P-01 accepts only the three official Incompetech URIs. Nothing was downloaded.",
             field="source_uri",
@@ -328,13 +328,13 @@ def ingest(config, request: IngestRequest) -> AcquisitionReceipt:
     raw = request.raw_path
     decoded = request.decoded_path
     if not raw.is_file() or not decoded.is_file():
-        raise MusicPrefError(
+        raise VotelleError(
             "invalid_source",
             "Raw and decoded files must already exist locally. This command does not download audio.",
             field="relative_path",
         )
     if raw.resolve() == decoded.resolve():
-        raise MusicPrefError(
+        raise VotelleError(
             "invalid_source",
             "Keep the MP3 and write the WAV or FLAC to a different file.",
             field="relative_path",
@@ -347,37 +347,37 @@ def ingest(config, request: IngestRequest) -> AcquisitionReceipt:
     raw_bytes = raw.read_bytes()
     decoded_bytes = decoded.read_bytes()
     if not _looks_like_mp3(raw_bytes[:4]):
-        raise MusicPrefError(
+        raise VotelleError(
             "invalid_source",
             "The raw original for this pilot is the MP3 from the official URI.",
             field="relative_path",
         )
     suffix = decoded.suffix.lower()
     if _looks_like_mp3(decoded_bytes[:4]) or suffix == ".mp3":
-        raise MusicPrefError(
+        raise VotelleError(
             "lossy_source_mislabelled",
             "Refusing to treat an MP3 as WAV or FLAC. Decode to a new file and leave the MP3 unchanged.",
             field="relative_path",
         )
     if suffix not in {".wav", ".flac"}:
-        raise MusicPrefError("invalid_source", "Decoded derivative must be WAV or FLAC.", field="relative_path")
+        raise VotelleError("invalid_source", "Decoded derivative must be WAV or FLAC.", field="relative_path")
     try:
         info = sf.info(decoded)
     except sf.LibsndfileError as exc:
-        raise MusicPrefError(
+        raise VotelleError(
             "invalid_source",
             "Decoded file is not a readable WAV or FLAC. Decode to a new file and leave the MP3 unchanged.",
             field="relative_path",
         ) from exc
     audio, sample_rate = read_audio(decoded)
     if info.format not in {"WAV", "FLAC"} or info.frames != audio.shape[0] or info.samplerate != sample_rate:
-        raise MusicPrefError(
+        raise VotelleError(
             "source_mismatch",
             "Decoded format properties do not match the file soundfile read.",
             field="relative_path",
         )
     if info.channels != audio.shape[1]:
-        raise MusicPrefError("source_mismatch", "Decoded channel count does not match.", field="relative_path")
+        raise VotelleError("source_mismatch", "Decoded channel count does not match.", field="relative_path")
 
     review = _family_review(request.family_review_path)
     asset_id = _stable_id("asset", {"source_uri": request.source_uri})
@@ -393,7 +393,7 @@ def ingest(config, request: IngestRequest) -> AcquisitionReceipt:
     if assets_path.is_file():
         existing_assets, asset_issues = load_jsonl(assets_path, Asset)
         if asset_issues:
-            raise MusicPrefError("schema_invalid", "assets.jsonl is invalid. Fix it before ingesting.", field="assets.jsonl")
+            raise VotelleError("schema_invalid", "assets.jsonl is invalid. Fix it before ingesting.", field="assets.jsonl")
     _reject_duplicates(
         asset_id,
         request.source_uri,
@@ -439,7 +439,7 @@ def ingest(config, request: IngestRequest) -> AcquisitionReceipt:
         _write_new(resolve_under_root(root, raw_rel), raw_bytes, created)
         _write_new(resolve_under_root(root, decoded_rel), decoded_bytes, created)
         if file_sha256(raw) != raw_sha:
-            raise MusicPrefError("hash_mismatch", "The raw MP3 changed while it was being copied.", field="relative_path")
+            raise VotelleError("hash_mismatch", "The raw MP3 changed while it was being copied.", field="relative_path")
         receipt_path = root / "receipts" / f"{asset_id}.json"
         _write_new(receipt_path, canonical_bytes(receipt.model_dump(mode="json")), created)
         if receipt.in_manifest:
@@ -474,13 +474,13 @@ def ingest(config, request: IngestRequest) -> AcquisitionReceipt:
 
 def prepare_clip(config, asset_id: str, clip_id: str, start_seconds: float, end_seconds: float) -> QCSidecar:
     if config.audio.normalization_profile != GAIN_PROFILE or not config.level_matched:
-        raise MusicPrefError(
+        raise VotelleError(
             "normalization_profile_rejected",
             "P-01 preparation uses gain_lufs_v1 with level_matched true.",
             field="normalization_profile",
         )
     if not clip_id.strip():
-        raise MusicPrefError("invalid_source", "clip_id is required.", field="clip_id")
+        raise VotelleError("invalid_source", "clip_id is required.", field="clip_id")
     root = dataset_root(config)
     dataset, issues = load_dataset(root)
     manifest_error = next(
@@ -496,14 +496,14 @@ def prepare_clip(config, asset_id: str, clip_id: str, start_seconds: float, end_
         None,
     )
     if manifest_error is not None:
-        raise MusicPrefError(
+        raise VotelleError(
             "schema_invalid",
             "Fix assets.jsonl and clips.jsonl before preparing a clip.",
             field=manifest_error.field,
         )
     asset = next((row for row in dataset.assets if row.asset_id == asset_id), None)
     if asset is None:
-        raise MusicPrefError(
+        raise VotelleError(
             "ineligible",
             "Asset is not in the manifest. Staged audio cannot enter the primary condition.",
             record_id=asset_id,
@@ -514,7 +514,7 @@ def prepare_clip(config, asset_id: str, clip_id: str, start_seconds: float, end_
     wav_path = resolve_under_root(root, prepared_rel)
     qc_path = resolve_under_root(root, qc_rel)
     if any(clip.clip_id == clip_id for clip in dataset.clips) or wav_path.exists() or qc_path.exists():
-        raise MusicPrefError(
+        raise VotelleError(
             "already_exists",
             "That clip id already has a prepared file, QC sidecar, or clips.jsonl row. Refusing to overwrite.",
             record_id=clip_id,
@@ -556,13 +556,13 @@ def prepare_clip(config, asset_id: str, clip_id: str, start_seconds: float, end_
     def write(created: list[Path], restores: list[tuple[Path, bytes]]) -> QCSidecar:
         _ensure_manifest(root, "clips.jsonl", created)
         if wav_path.exists() or qc_path.exists():
-            raise MusicPrefError("already_exists", "Refusing to overwrite a prepared clip.", record_id=clip_id)
+            raise VotelleError("already_exists", "Refusing to overwrite a prepared clip.", record_id=clip_id)
         wav_path.parent.mkdir(parents=True, exist_ok=True)
         created.append(wav_path)
         sf.write(wav_path, wave, 48000, format="WAV", subtype="FLOAT")
         written, written_rate = sf.read(wav_path, always_2d=False, dtype="float32")
         if written_rate != 48000 or pcm_hash(written) != qc.prepared_pcm_sha256:
-            raise MusicPrefError("hash_mismatch", "Prepared WAV does not match the excerpt.", field="relative_path")
+            raise VotelleError("hash_mismatch", "Prepared WAV does not match the excerpt.", field="relative_path")
         _write_new(qc_path, canonical_bytes(qc.model_dump(mode="json")), created)
         if eligibility == "primary_level_matched":
             clip = Clip.model_validate(

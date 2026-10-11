@@ -42,7 +42,7 @@ This exception is not blanket permission for future downloads, model execution, 
 - Do not add a generator or UI.
 - Do not treat fixture tests as evidence of preference prediction.
 - A change to excerpt length, grouping, rights, or label meaning needs a new protocol version. Do not make that change as an incidental refactor.
-- Decision records still say `music-pref` / `music_pref`. The exception class remains `MusicPrefError`. Do not rename them in a documentation pass.
+- Accepted decisions 0001–0003 and the archive still say `music-pref` / `music_pref`. The exception class is `VotelleError`. Do not rename those historical records in a documentation pass. Decision 0004 records the naming migration.
 - `docs/research/06_MVP_Technical_Specification.md` is a broader contract, not a list of implemented modules.
 - Ingest records a decode command. It does not run that command and it does not download audio.
 - Do not run `split` on the P-01 acquisition pilot.

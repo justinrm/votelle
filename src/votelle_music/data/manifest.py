@@ -19,7 +19,7 @@ from votelle_music.schemas import (
     Clip,
     FoundationConfig,
     Judgment,
-    MusicPrefError,
+    VotelleError,
     ValidationIssue,
     ValidationReport,
     canonical_bytes,
@@ -325,7 +325,7 @@ def check_media(dataset: Dataset, config: FoundationConfig) -> list[ValidationIs
     for asset in dataset.assets:
         try:
             path = resolve_under_root(dataset.root, asset.relative_path)
-        except MusicPrefError as exc:
+        except VotelleError as exc:
             issues.append(error(asset.asset_id, exc.field, exc.code, exc.remediation))
             decoded[asset.asset_id] = None
             continue
@@ -335,7 +335,7 @@ def check_media(dataset: Dataset, config: FoundationConfig) -> list[ValidationIs
             continue
         try:
             data, sample_rate = read_audio(path)
-        except MusicPrefError as exc:
+        except VotelleError as exc:
             issues.append(error(asset.asset_id, exc.field, exc.code, exc.remediation))
             decoded[asset.asset_id] = None
             continue
@@ -362,7 +362,7 @@ def check_media(dataset: Dataset, config: FoundationConfig) -> list[ValidationIs
         data, sample_rate = loaded
         try:
             excerpt = crop_samples(data, sample_rate, clip.start_seconds, clip.end_seconds)
-        except MusicPrefError as exc:
+        except VotelleError as exc:
             issues.append(error(clip.clip_id, exc.field, exc.code, exc.remediation))
             continue
         silent = is_digital_silence(excerpt)
@@ -388,7 +388,7 @@ def check_media(dataset: Dataset, config: FoundationConfig) -> list[ValidationIs
                     config.audio.normalization_profile,
                     True,
                 )
-            except MusicPrefError as exc:
+            except VotelleError as exc:
                 issues.append(error(clip.clip_id, exc.field, exc.code, exc.remediation))
             else:
                 if prepared.loudness_mismatch:

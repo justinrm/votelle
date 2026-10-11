@@ -13,7 +13,7 @@ from votelle_music.audio.prepare import file_sha256, pcm_hash, preprocessing_doc
 from votelle_music.cli import main
 from votelle_music.data.ingest import IngestRequest, ingest, prepare_clip
 from votelle_music.data.manifest import load_config, load_dataset, validate
-from votelle_music.schemas import SCHEMA_VERSION, MusicPrefError, RightsRecord, canonical_bytes, sha256_hex
+from votelle_music.schemas import SCHEMA_VERSION, VotelleError, RightsRecord, canonical_bytes, sha256_hex
 from tests.fixtures.build import dump_jsonl, write_config
 
 DISQUIET = "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Disquiet.mp3"
@@ -195,7 +195,7 @@ def test_missing_local_file_is_not_fetched(tmp_path):
     config = _config(tmp_path / "p01.json", root)
     missing = tmp_path / "nope.mp3"
     decoded = tmp_path / "nope.wav"
-    with pytest.raises(MusicPrefError) as caught:
+    with pytest.raises(VotelleError) as caught:
         ingest(config, _request(root, DISQUIET, missing, decoded))
     assert caught.value.code == "invalid_source"
     assert not missing.exists()
@@ -217,7 +217,7 @@ def test_invalid_source_writes_nothing(tmp_path):
         _request(root, DISQUIET, raw, decoded, decode_command="  "),
     ]
     for request in cases:
-        with pytest.raises(MusicPrefError) as caught:
+        with pytest.raises(VotelleError) as caught:
             ingest(config, request)
         assert caught.value.code in {"invalid_source", "lossy_source_mislabelled", "missing_provenance"}
     assert not (root / "assets.jsonl").exists() or (root / "assets.jsonl").read_text(encoding="utf-8") == ""
@@ -238,7 +238,7 @@ def test_malformed_wav_and_flac_are_rejected_without_partial_state(tmp_path):
     for suffix, payload in payloads.items():
         decoded = incoming / f"disquiet{suffix}"
         decoded.write_bytes(payload)
-        with pytest.raises(MusicPrefError) as caught:
+        with pytest.raises(VotelleError) as caught:
             ingest(config, _request(root, DISQUIET, raw, decoded))
         assert caught.value.code == "invalid_source"
         assert caught.value.field == "relative_path"
@@ -377,14 +377,14 @@ def test_duplicate_source_or_pcm_is_rejected(tmp_path):
     first = ingest(config, request)
     receipt_before = (root / "receipts" / f"{first.asset_id}.json").read_bytes()
     copied_before = (root / first.raw_relative_path).read_bytes()
-    with pytest.raises(MusicPrefError) as caught:
+    with pytest.raises(VotelleError) as caught:
         ingest(config, request)
     assert caught.value.code == "duplicate_id"
     assert (root / "receipts" / f"{first.asset_id}.json").read_bytes() == receipt_before
     assert (root / first.raw_relative_path).read_bytes() == copied_before
 
     other_raw = _mp3(incoming / "other.mp3", b"other-raw")
-    with pytest.raises(MusicPrefError) as caught:
+    with pytest.raises(VotelleError) as caught:
         ingest(config, _request(root, MESMERIZE, other_raw, decoded, rights_record_id="rights-p01"))
     assert caught.value.code == "duplicate_id"
     assert [path.name for path in (root / "receipts").iterdir()] == [f"{first.asset_id}.json"]
@@ -506,7 +506,7 @@ def test_repeat_ingest_is_deterministic(tmp_path):
         assert (root / "evidence" / "terms.txt").read_bytes() == evidence_before
 
         before_retry = {path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()}
-        with pytest.raises(MusicPrefError) as caught:
+        with pytest.raises(VotelleError) as caught:
             ingest(config, request)
         assert caught.value.code == "duplicate_id"
         assert {path.relative_to(root): path.read_bytes() for path in root.rglob("*") if path.is_file()} == before_retry
@@ -538,7 +538,7 @@ def test_malformed_receipt_does_not_copy_audio(tmp_path):
         (root / "receipts").mkdir(parents=True)
         (root / "receipts" / "bad.json").write_text(payload, encoding="utf-8")
         config = _config(tmp_path / f"{name}.json", root)
-        with pytest.raises(MusicPrefError) as caught:
+        with pytest.raises(VotelleError) as caught:
             ingest(config, _request(root, DISQUIET, raw, decoded))
         assert caught.value.code == "schema_invalid"
         assert list(root.rglob("*.mp3")) == []
@@ -555,7 +555,7 @@ def test_prepare_refuses_a_malformed_clips_manifest(tmp_path):
     _rights(root, research="allowed")
     receipt = ingest(config, _request(root, DISQUIET, raw, decoded, rights_record_id="rights-p01"))
     (root / "clips.jsonl").write_text("{not json}\n", encoding="utf-8")
-    with pytest.raises(MusicPrefError) as caught:
+    with pytest.raises(VotelleError) as caught:
         prepare_clip(config, receipt.asset_id, "clip-bad", 0.0, 10.0)
     assert caught.value.code == "schema_invalid"
     assert list(root.glob("prepared/*")) == []
@@ -574,7 +574,7 @@ def test_failed_ingest_removes_partial_files(tmp_path):
     assets = root / "assets.jsonl"
     assets.write_text("", encoding="utf-8")
     assets.chmod(0o444)
-    with pytest.raises(MusicPrefError):
+    with pytest.raises(VotelleError):
         ingest(config, _request(root, DISQUIET, raw, decoded, rights_record_id="rights-p01"))
     assert raw.read_bytes() == raw_before
     assert list(root.rglob("*.mp3")) == []
@@ -666,7 +666,7 @@ def test_prepare_rejects_staged_assets_bad_bounds_and_overwrite(tmp_path):
     raw, decoded = _pair(incoming, "disquiet", rate=48000, seconds=12)
     config = _config(tmp_path / "p01.json", root)
     staged = ingest(config, _request(root, DISQUIET, raw, decoded))
-    with pytest.raises(MusicPrefError) as caught:
+    with pytest.raises(VotelleError) as caught:
         prepare_clip(config, staged.asset_id, "clip-nope", 0.0, 10.0)
     assert caught.value.code == "ineligible"
     assert list(root.rglob("prepared/*")) == []
@@ -681,14 +681,14 @@ def test_prepare_rejects_staged_assets_bad_bounds_and_overwrite(tmp_path):
         eligible_config,
         _request(eligible_root, DISQUIET, eligible_raw, eligible_decoded, rights_record_id="rights-p01"),
     )
-    with pytest.raises(MusicPrefError) as caught:
+    with pytest.raises(VotelleError) as caught:
         prepare_clip(eligible_config, receipt.asset_id, "clip-short", 0.0, 9.0)
     assert caught.value.code == "duration_not_ten_seconds"
     assert list(eligible_root.glob("prepared/*")) == []
 
     qc = prepare_clip(eligible_config, receipt.asset_id, "clip-ok", 0.0, 10.0)
     before = (eligible_root / "qc" / "clip-ok.json").read_bytes()
-    with pytest.raises(MusicPrefError) as caught:
+    with pytest.raises(VotelleError) as caught:
         prepare_clip(eligible_config, receipt.asset_id, "clip-ok", 0.0, 10.0)
     assert caught.value.code == "already_exists"
     assert (eligible_root / "qc" / "clip-ok.json").read_bytes() == before
@@ -703,7 +703,7 @@ def test_failed_prepare_removes_partial_audio(tmp_path):
     _rights(root, research="allowed")
     receipt = ingest(config, _request(root, DISQUIET, raw, decoded, rights_record_id="rights-p01"))
     (root / "qc").write_text("blocker", encoding="utf-8")
-    with pytest.raises(MusicPrefError):
+    with pytest.raises(VotelleError):
         prepare_clip(config, receipt.asset_id, "clip-ok", 0.0, 10.0)
     assert list(root.glob("prepared/*")) == []
     assert (root / "qc").read_text(encoding="utf-8") == "blocker"

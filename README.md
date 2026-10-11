@@ -45,7 +45,7 @@ uv sync --locked --group dev
 
 `uv sync` creates the project’s isolated `.venv`, installs the project, and includes pytest through the development group. The core dependencies are NumPy, Pydantic, SciPy, and SoundFile; [pyproject.toml](pyproject.toml) declares requirements and [uv.lock](uv.lock) records resolved versions. SoundFile needs libsndfile, normally bundled with its supported wheels. Environment setup may download Python and dependencies; the fixture workflow itself needs no network, model weights, private audio, credentials, or paid service.
 
-The working-tree distribution and CLI are **`votelle-music`**; the import package is **`votelle_music`**. The naming migration is not fully reconciled: accepted historical records still use `music-pref` / `music_pref`, and the exception class remains `MusicPrefError`. Those names describe earlier artifacts; use the current identifiers for commands. These instructions install from the checkout and do not assume a published PyPI distribution. PyTorch and Transformers are not dependencies of this foundation environment; explicitly authorized CLAP feasibility tasks use a separate environment.
+The working-tree distribution and CLI are **`votelle-music`**; the import package is **`votelle_music`**; the exception class is **`VotelleError`**. Accepted historical records still use `music-pref` / `music_pref`. Those names describe earlier artifacts; use the current identifiers for commands and imports. These instructions install from the checkout and do not assume a published PyPI distribution. PyTorch and Transformers are not dependencies of this foundation environment; explicitly authorized CLAP feasibility tasks use a separate environment.
 
 ## Offline quick start
 

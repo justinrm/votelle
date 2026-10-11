@@ -6,7 +6,7 @@ That question is the current experiment. [Project direction](PROJECT_DIRECTION.m
 
 Research protocol **v0.1**. This file is the resumption note. Authority order is in `docs/research/README.md`.
 
-The human-readable name is Votelle. This tree's package is `votelle_music` and the CLI is `votelle-music`. Decision records and the archived handoff still say `music-pref` / `music_pref`. `MusicPrefError` is still the exception class. That rename is a separate task.
+The human-readable name is Votelle. This tree's package is `votelle_music`, the CLI is `votelle-music`, and the exception class is `VotelleError`. Accepted decisions 0001–0003 and the archived handoff still say `music-pref` / `music_pref`. Those historical names stay in place. Decision 0004 records the migration.
 
 ## Licensing
 
@@ -79,7 +79,7 @@ These remain unresolved. Archiving the risk note did not close them.
 - No finalized creator brief, no musically accepted 10-second crops, no human judgments; a technically prepared probe input does not close these gates.
 - Release permissions for P-01 are `unknown`, so `commercial_ready` is not available.
 - Whether frozen CLAP can carry the preference signal is untested. The four-text cosine check records encoder similarities for one technical excerpt and supplies no listener judgment.
-- Package naming is inconsistent, as noted above.
+- Historical records still use `music-pref` / `music_pref`. Live code uses `votelle_music`, `votelle-music`, and `VotelleError`. Decision 0004 records that split.
 
 `docs/decisions/0002-audition-normalization.md` is the loudness procedure. The archived feasibility handoff still describes that procedure as a proposal. Do not merge those texts.
 
@@ -97,9 +97,10 @@ Checked from this checkout on October 10, 2026 with uv 0.12.21 and CPython 3.11.
 - Wheel and sdist `votelle_music-0.1.0`: package `votelle_music`, console script `votelle-music`, `License-Expression: Apache-2.0`, and the license file. The packages contain no audio or weights. Runtime dependencies remain NumPy, Pydantic, SciPy, and SoundFile.
 - `.github/workflows/ci.yml` runs that sequence for pushes and pull requests to `main`, on Ubuntu, with CPython 3.11 and the lockfile. The workflow was checked locally. Hosted GitHub Actions has not run it.
 - The recorded CLAP checkpoint SHA-256 and byte length, the probe PCM hash, and the four cosine values matched the local files. The model was not reloaded.
+- Naming migration checked October 10, 2026: locked sync, 20-family fixture, `votelle-music validate` (0 issues), `votelle-music split` (seed 17; 12 train, 2 validation, 2 calibration, 4 test), and the tracked pytest suite (77 passed). Live imports use `VotelleError`. `git diff --check` was clean.
 
 ## Where to look
 
-- Decisions: `docs/decisions/0001-foundation-choices.md`, `0002-audition-normalization.md`, `0003-p01-ingestion.md`
+- Decisions: `docs/decisions/0001-foundation-choices.md`, `0002-audition-normalization.md`, `0003-p01-ingestion.md`, `0004-votelle-naming.md`
 - Active research: `docs/research/README.md`
 - Open risks and citations: `docs/archive/README.md`

@@ -11,7 +11,7 @@ import math
 import numpy as np
 from scipy.signal import lfilter, resample_poly
 
-from votelle_music.schemas import MusicPrefError
+from votelle_music.schemas import VotelleError
 
 RATE = 48000
 BLOCK = 19200  # 400 ms
@@ -55,7 +55,7 @@ _SHELF_B, _SHELF_A, _HP_B, _HP_A = _biquads()
 
 def _require_rate(sample_rate: int) -> None:
     if int(sample_rate) != RATE:
-        raise MusicPrefError(
+        raise VotelleError(
             "invalid_audio",
             "The BS.1770-4 coefficients are pinned at 48000 Hz.",
             field="sample_rate",
@@ -67,9 +67,9 @@ def _as_channels(samples: np.ndarray) -> np.ndarray:
     if audio.ndim == 1:
         audio = audio[:, None]
     if audio.ndim != 2 or audio.shape[1] not in {1, 2}:
-        raise MusicPrefError("invalid_audio", "Loudness measurement accepts mono or stereo.", field="relative_path")
+        raise VotelleError("invalid_audio", "Loudness measurement accepts mono or stereo.", field="relative_path")
     if not np.isfinite(audio).all():
-        raise MusicPrefError("nonfinite_audio", "Audio contains NaN or Inf.", field="relative_path")
+        raise VotelleError("nonfinite_audio", "Audio contains NaN or Inf.", field="relative_path")
     return np.ascontiguousarray(audio)
 
 
@@ -79,7 +79,7 @@ def _k_weight(channel: np.ndarray) -> np.ndarray:
 
 def _block_power(audio: np.ndarray) -> np.ndarray:
     if audio.shape[0] < BLOCK:
-        raise MusicPrefError(
+        raise VotelleError(
             "loudness_window_too_short",
             "Integrated loudness needs at least 400 ms at 48000 Hz.",
             field="relative_path",
@@ -132,7 +132,7 @@ def true_peak_linear(samples: np.ndarray) -> float:
     if audio.size == 0:
         return 0.0
     if not np.isfinite(audio).all():
-        raise MusicPrefError("nonfinite_audio", "Audio contains NaN or Inf.", field="relative_path")
+        raise VotelleError("nonfinite_audio", "Audio contains NaN or Inf.", field="relative_path")
     oversampled = resample_poly(audio, 4, 1, padtype="line")
     return float(np.max(np.abs(oversampled)))
 

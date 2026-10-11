@@ -4,7 +4,7 @@ import pytest
 from votelle_music.audio.measure import measure_crop
 from votelle_music.audio.prepare import prepare_excerpt, read_audio
 from votelle_music.data.manifest import load_config, validate
-from votelle_music.schemas import MusicPrefError
+from votelle_music.schemas import VotelleError
 from tests.fixtures.build import build_dataset, write_config
 
 
@@ -27,26 +27,26 @@ def test_diagnostics_have_units_and_method_ids():
 
 def test_nonfinite_silence_bounds_and_rejected_profiles():
     tone = _tone()
-    with pytest.raises(MusicPrefError) as nonfinite:
+    with pytest.raises(VotelleError) as nonfinite:
         dirty = tone.copy()
         dirty[0, 0] = np.nan
         prepare_excerpt(dirty, 48000, 0, 10, "none_fixture_only", False)
     assert nonfinite.value.code == "nonfinite_audio"
-    with pytest.raises(MusicPrefError) as infinite:
+    with pytest.raises(VotelleError) as infinite:
         dirty = tone.copy()
         dirty[0, 0] = np.inf
         prepare_excerpt(dirty, 48000, 0, 10, "none_fixture_only", False)
     assert infinite.value.code == "nonfinite_audio"
-    with pytest.raises(MusicPrefError) as silent:
+    with pytest.raises(VotelleError) as silent:
         prepare_excerpt(np.zeros_like(tone), 48000, 0, 10, "none_fixture_only", False)
     assert silent.value.code == "digital_silence"
-    with pytest.raises(MusicPrefError) as short:
+    with pytest.raises(VotelleError) as short:
         prepare_excerpt(tone, 48000, 0, 9, "none_fixture_only", False)
     assert short.value.code == "duration_not_ten_seconds"
-    with pytest.raises(MusicPrefError) as loudness:
+    with pytest.raises(VotelleError) as loudness:
         prepare_excerpt(tone, 48000, 0, 10, "gain_lufs_v1", False)
     assert loudness.value.code == "normalization_profile_rejected"
-    with pytest.raises(MusicPrefError) as claimed:
+    with pytest.raises(VotelleError) as claimed:
         prepare_excerpt(tone, 48000, 0, 10, "none_fixture_only", True)
     assert claimed.value.code == "normalization_profile_rejected"
 
