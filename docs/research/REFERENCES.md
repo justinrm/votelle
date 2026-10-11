@@ -71,7 +71,9 @@ Current scientific use of a source is in the consolidated note that cites it. Th
 - [OpenL3 tutorial](https://github.com/marl/openl3/blob/main/docs/tutorial.rst): 512/6,144-dimensional embeddings and configurable extraction.
 - [MERT code license](https://github.com/yizhilll/MERT/blob/main/LICENSE): Apache-2.0 root license, distinct from NC weights and inherited component notices.
 
-## Scope of verification
+## Scope of the 9 October register
+
+The paragraph below is copied from [`10_Source_Register.md`](../archive/research-v0.1/10_Source_Register.md). It describes that register, not the later isolated probe. "03 and 09" are documents in the 9 October package, not [`03_ENCODER_AND_MODEL.md`](03_ENCODER_AND_MODEL.md). The 10 October 2026 single-clip CPU result, including a local checkpoint hash, is in [`docs/STATUS.md`](../STATUS.md).
 
 Repository pages and model file listings establish public artifact availability, not successful execution or independent benchmark reproduction. Some specifications remain explicitly unverified in 03 and 09. No third-party rights clearance, model weight download, private service access or paid compute purchase occurred. Decisions, proposed thresholds, derived parameter counts and budget envelopes are this project's research design rather than claims made by the cited authors.
 
