@@ -12,7 +12,7 @@ The long-term ambition is to develop compact, adaptable music-intelligence and d
 
 ## 2. Foundational research philosophy
 
-The architectural inspiration is compact, task-specialized decision-making, in the spirit of systems such as Jev: a small model asked to make a bounded decision and to expose uncertainty. Jev's documented interface is text and structured content. No validated music-waveform evaluator was established for it, and Votelle does not reproduce its internals. The v0.1 representation is frozen music CLAP. Text-only Jev is not that encoder. The distinction is recorded in the [literature note](archive/research-v0.1/02_Literature_and_Competitive_Landscape.md) and the [encoder analysis](research/03_Audio_Encoder_and_Architecture_Analysis.md).
+The architectural inspiration is compact, task-specialized decision-making, in the spirit of systems such as Jev: a small model asked to make a bounded decision and to expose uncertainty. Jev's documented interface is text and structured content. No validated music-waveform evaluator was established for it, and Votelle does not reproduce its internals. The v0.1 representation is frozen music CLAP. Text-only Jev is not that encoder. The distinction is recorded in the [literature note](archive/research-v0.1/02_Literature_and_Competitive_Landscape.md) and the [encoder note](research/03_ENCODER_AND_MODEL.md).
 
 The project does not commit to a proprietary model, an integration partner, or an untested architecture.
 
@@ -49,7 +49,7 @@ The accepted experiment asks whether a compact learned scoring model, on frozen 
 
 A clip can match a brief without being preferred, and a preferred clip can miss the brief. The two scores stay separate.
 
-Creator-specific pairwise preference is the first falsifiable preference hypothesis because the protocol records comparative judgments from a named person, on declared excerpts, against fixed baselines. One creator does not establish a population taste. The direct test is whether a regularized listener-specific adjustment predicts that person's later choices on unseen families better than the fixed baseline, without folding adherence into the same objective. Adherence is the paired hypothesis, tested on its own labels. Either hypothesis can fail. A negative result is a valid outcome. The pre-registered statements are H1 and H2 in the [training and evaluation plan](research/05_Training_and_Evaluation_Research_Plan.md).
+Creator-specific pairwise preference is the first falsifiable preference hypothesis because the protocol records comparative judgments from a named person, on declared excerpts, against fixed baselines. One creator does not establish a population taste. The direct test is whether a regularized listener-specific adjustment predicts that person's later choices on unseen families better than the fixed baseline, without folding adherence into the same objective. Adherence is the paired hypothesis, tested on its own labels. Either hypothesis can fail. A negative result is a valid outcome. The pre-registered statements are H1 and H2 in the [training and evaluation note](research/04_TRAINING_AND_EVALUATION.md).
 
 The proposed progression is:
 
@@ -63,22 +63,22 @@ The unit of analysis remains an explicitly selected ten-second excerpt. Full-son
 
 | Topic | Document |
 | --- | --- |
-| Representation and model order | [03 — architecture](research/03_Audio_Encoder_and_Architecture_Analysis.md) |
-| Hypotheses and evaluation gates | [05 — training and evaluation](research/05_Training_and_Evaluation_Research_Plan.md) |
-| MVP contracts | [06 — MVP specification](research/06_MVP_Technical_Specification.md) |
-| Listening protocol | [02 — P0 listening](research/02_P0_Dataset_and_Listening_Protocol.md) |
-| Rights and labels | [04 — data and feedback](research/04_Dataset_and_Human_Feedback_Strategy.md) |
+| Representation and model order | [Encoder and model](research/03_ENCODER_AND_MODEL.md) |
+| Hypotheses and evaluation gates | [Training and evaluation](research/04_TRAINING_AND_EVALUATION.md) |
+| MVP contracts | [MVP specification](research/05_MVP_SPECIFICATION.md) |
+| Listening protocol | [P0 listening protocol](research/02_P0_LISTENING_PROTOCOL.md) |
+| Rights and labels | [Data governance](research/01_DATA_GOVERNANCE.md) |
 | What this tree implements | [Status](STATUS.md) |
 
-The MVP specification remains the contract for protocol scope, data, and proposed modules. This note does not replace it.
+The [MVP specification](research/05_MVP_SPECIFICATION.md) remains the contract for protocol scope, data, and proposed modules. This note does not replace it.
 
 ## 5. Evidence and expansion gates
 
 | Layer | What it is allowed to mean | Where it lives |
 | --- | --- | --- |
 | Current implementation | Manifests, rights checks, ten-second preparation, identity-safe splits, a dummy encoder, and local P-01 intake. An isolated single-clip CPU CLAP feasibility run is recorded. There is no core adapter, trained ranker, or listening result. | [Status](STATUS.md), source, tests, and configs |
-| Proposed experimental methods | Frozen CLAP features, cosine and simple baselines, regularized linear pairwise ranking, then a conditional neural challenger, with grouped splits, calibration, and abstention analysis. | Research notes 03, 05, and 06 |
-| Hypotheses requiring validation | Learning beats the fixed baselines on brief adherence (H1). A small listener-specific adjustment improves later preference predictions (H2). | [Training plan](research/05_Training_and_Evaluation_Research_Plan.md) |
+| Proposed experimental methods | Frozen CLAP features, cosine and simple baselines, regularized linear pairwise ranking, then a conditional neural challenger, with grouped splits, calibration, and abstention analysis. | [Encoder and model](research/03_ENCODER_AND_MODEL.md), [training and evaluation](research/04_TRAINING_AND_EVALUATION.md), [MVP specification](research/05_MVP_SPECIFICATION.md) |
+| Hypotheses requiring validation | Learning beats the fixed baselines on brief adherence (H1). A small listener-specific adjustment improves later preference predictions (H2). | [Training and evaluation](research/04_TRAINING_AND_EVALUATION.md) |
 | Potential future applications | Intent checks used by other systems, candidate selection, reward signals, recommendation support, distillation, and abstention beyond the v0.1 excerpt. | Section 3 |
 
 A broader capability needs a suitable new experiment. A change to label meaning, grouping, rights, or excerpt length needs a new protocol version. Whole-song scope and a different model interface are in that category. They are not extensions that v0.1 can absorb in place.

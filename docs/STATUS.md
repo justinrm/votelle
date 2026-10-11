@@ -52,7 +52,7 @@ The earlier local intake snapshot recorded Disquiet, Mesmerize, and Colorless Au
 
 The technical input is the Disquiet 30–40 second excerpt: mono float32, 48 kHz, 480,000 samples. Recomputed PCM SHA-256 `f78adc9e79b8bc0a115df25ae981d7daccef63d1c08924cf3b07c1b116fd4507`. Observed mel shape `[1, 1, 1001, 64]`. The separate environment is Python 3.11.16, PyTorch 2.14.1, and Transformers 5.19.0. MPS was built and available; the run stayed on CPU.
 
-An earlier attempt the same day stopped on yellow pressure sustained for 10 seconds, worker status `-9`, polled peak 151,371,776 bytes. The retained prior directory has no completed `cold.json`. Those logs remain in `retries/20261010-144504/prior/`. The dated [probe handoff](research/03_CLAP_Encoder_Feasibility_and_Benchmark_Handoff.md) is unchanged and still states its pre-attempt contract. Decision 0002 still prohibits naming CLAP in the foundation config. There is no core adapter.
+An earlier attempt the same day stopped on yellow pressure sustained for 10 seconds, worker status `-9`, polled peak 151,371,776 bytes. The retained prior directory has no completed `cold.json`. Those logs remain in `retries/20261010-144504/prior/`. The dated [probe handoff](archive/research-preconsolidation-2026-10/03_CLAP_Encoder_Feasibility_and_Benchmark_Handoff.md) is unchanged and still states its pre-attempt contract. Decision 0002 still prohibits naming CLAP in the foundation config. There is no core adapter.
 
 **20-clip benchmark: not run.** Distinct-clip throughput, the embedding cache, and CPU/MPS parity are unmeasured.
 
@@ -71,6 +71,8 @@ These are encoder similarities for one technical excerpt. They are not listener 
 
 A cleanup pass later on October 10, 2026 recomputed the checkpoint SHA-256 and byte length from the local `pytorch_model.bin`, and the PCM hash of `data/probes/disquiet_0030_0040/waveform.wav`. Both matched this record, as did the four cosine values in `semantic/20261010-150249/result.json`. The model was not reloaded.
 
+**Three-clip runner is ready and has not been executed.** `runs/clap-cpu-probe/semantic_three.py` reuses the single-clip supervisor limits, the pinned `larger_clap_music` checkpoint, and the `pooler_output` call. A no-model check confirmed the three `data/probes/clap-tech-3` excerpts and the checkpoint hash. No three-clip cosine matrix is recorded.
+
 ## Open
 
 These remain unresolved. Archiving the risk note did not close them.
@@ -85,7 +87,7 @@ These remain unresolved. Archiving the risk note did not close them.
 
 ## Next
 
-Finalize the creator brief and musical acceptance of P-01 excerpts. Single-clip CPU feasibility and the four-text cosine check are recorded above. The 20-clip benchmark, MPS, training, and a core adapter wait for a separate explicit authorization. The safeguards remain 4,500,000,000 bytes RSS, an immediate stop on red pressure, a stop on yellow pressure sustained for 10 seconds, and a stop on 128 MiB swap growth over 15 seconds.
+Finalize the creator brief and musical acceptance of P-01 excerpts. Single-clip CPU feasibility and the four-text cosine check are recorded above. The three-clip diagnostic runner is written and has not been started. The 20-clip benchmark, MPS, training, and a core adapter wait for a separate explicit authorization. The safeguards remain 4,500,000,000 bytes RSS, an immediate stop on red pressure, a stop on yellow pressure sustained for 10 seconds, and a stop on 128 MiB swap growth over 15 seconds.
 
 ## Verification
 
@@ -102,5 +104,7 @@ Checked from this checkout on October 10, 2026 with uv 0.12.21 and CPython 3.11.
 ## Where to look
 
 - Decisions: `docs/decisions/0001-foundation-choices.md`, `0002-audition-normalization.md`, `0003-p01-ingestion.md`, `0004-votelle-naming.md`
+- Documentation map: `docs/README.md`
 - Active research: `docs/research/README.md`
-- Open risks and citations: `docs/archive/README.md`
+- Open risks: `docs/archive/research-v0.1/09_Research_Risks_and_Open_Questions.md`
+- Citations: `docs/research/REFERENCES.md`. The dated original register remains `docs/archive/research-v0.1/10_Source_Register.md`

@@ -2,7 +2,12 @@
 
 Historical research for protocol v0.1. These files explain earlier rationale, citations, and handoffs. They do not override `docs/decisions/`, the source tree, or the active notes in `docs/research/`.
 
-`research-v0.1/` is the original October 9, 2026 package plus the later feasibility decision. Body text is unchanged except four links in `00_READ_ME.md`, which now point at the copies kept active under `docs/research/`.
+Two historical layers live here. Neither overrides `docs/decisions/`, the source tree, or the active notes in `docs/research/`.
+
+`research-v0.1/` is the original October 9, 2026 package that was archived before consolidation: the executive assessment, literature review, feasibility decision, roadmap, agent handoff, risk note, and dated source register. Body text is unchanged except the four reading-order links in `00_READ_ME.md`. Those links now open the pre-consolidation copies, because the files they named are no longer in `docs/research/`.
+
+`research-preconsolidation-2026-10/` holds the seven notes that stayed active until 10 October 2026, including the later rights audit and the CLAP handoff. Their findings were not rewritten. The [preface](research-preconsolidation-2026-10/README.md) states how they relate to the October 9 package and to the current research notes. The lookup copy of the source register is [`docs/research/REFERENCES.md`](../research/REFERENCES.md). `10_Source_Register.md` remains the dated original.
+
 
 | File | Why it is here |
 |---|---|
@@ -13,7 +18,7 @@ Historical research for protocol v0.1. These files explain earlier rationale, ci
 | `07_Development_Roadmap_and_Budget.md` | Schedule and cost estimates |
 | `08_Cursor_Agent_Implementation_Handoff.md` | First-session handoff. It still says `src/music_pref/` |
 | `09_Research_Risks_and_Open_Questions.md` | Open risks. These are not closed decisions |
-| `10_Source_Register.md` | Dated citation register, October 9, 2026 Pacific |
+| `10_Source_Register.md` | Dated citation register, October 9, 2026 Pacific. Active lookup copy: [`docs/research/REFERENCES.md`](../research/REFERENCES.md) |
 
 The original delivery ZIP matched these eleven package files byte for byte (SHA-256 `c1c48dc41f3a5676ae1db2de6c9c45a5f9a602457be0e2a6afc9aab534f643c5`). It was removed from the working tree. Git history still has the blob.
 

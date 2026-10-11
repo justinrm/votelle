@@ -31,13 +31,13 @@ Evidence in this tree:
 
 Renamed in live source and tests. Current-status sentences that still said the exception was `MusicPrefError` were corrected in `README.md`, `AGENTS.md`, and `docs/STATUS.md`.
 
-Accepted decisions 0001–0003, `docs/archive/`, and the active research notes were not rewritten. They still contain `music-pref` and `music_pref` as historical text. The English phrase “music-preference” in the dataset note is not an identifier. General documentation cross-links stay for a later integration batch.
+Accepted decisions 0001–0003 and `docs/archive/` were not rewritten. They still contain `music-pref` and `music_pref` as historical text. The 10 October 2026 documentation integration moved the notes that used those spellings as contract language into `docs/archive/research-preconsolidation-2026-10/`. The English phrase “music-preference” in the dataset note is not an identifier.
 
 ## Retained historical names
 
 - `docs/decisions/0002-audition-normalization.md` and `docs/decisions/0003-p01-ingestion.md` still name the earlier `music-pref` commands.
 - `docs/archive/research-v0.1/08_Cursor_Agent_Implementation_Handoff.md` and `docs/archive/README.md` still describe `src/music_pref/`.
-- `docs/research/06_MVP_Technical_Specification.md` still uses `music_pref` and `music-pref` as its original placeholder contract.
+- `docs/archive/research-preconsolidation-2026-10/06_MVP_Technical_Specification.md` still uses `music_pref` and `music-pref` as its original placeholder contract. The live specification is `docs/research/05_MVP_SPECIFICATION.md`.
 
 ## Verification
 
