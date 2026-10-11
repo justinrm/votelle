@@ -90,3 +90,58 @@ def test_changed_audio_changes_the_cache_key(tmp_path):
     assert _key(source_pcm_sha256=pcm_hash(data), preprocessing_sha256=repeated.preprocessing_sha256) == original
     report = validate(load_config(write_config(tmp_path / "config.json", root)))
     assert report.issues == []
+
+
+def test_load_feature_round_trips_a_stored_embedding(tmp_path):
+    vector = l2_normalize(np.arange(512))
+    path = store_feature(tmp_path, _key(), vector)
+    loaded = load_feature(path)
+    assert loaded.shape == (512,)
+    assert loaded.dtype == np.float32
+    np.testing.assert_array_equal(loaded, vector)
+
+
+def test_load_feature_rejects_truncated_npy(tmp_path):
+    raw = tmp_path / "full.npy"
+    np.save(raw, np.zeros(512, dtype=np.float32))
+    truncated = tmp_path / "truncated.npy"
+    truncated.write_bytes(raw.read_bytes()[:24])
+    with pytest.raises(FeatureError) as caught:
+        load_feature(truncated)
+    assert caught.value.code == "schema_invalid"
+
+
+def test_load_feature_rejects_wrong_shape(tmp_path):
+    path = tmp_path / "shape.npy"
+    for vector in (np.ones(511, dtype=np.float32), np.ones((1, 512), dtype=np.float32)):
+        np.save(path, vector)
+        with pytest.raises(FeatureError) as caught:
+            load_feature(path)
+        assert caught.value.code == "encoder_dimension"
+
+
+def test_load_feature_rejects_nonfinite_values(tmp_path):
+    path = tmp_path / "nonfinite.npy"
+    for value in (np.nan, np.inf, -np.inf):
+        vector = np.zeros(512, dtype=np.float32)
+        vector[0] = value
+        np.save(path, vector)
+        with pytest.raises(FeatureError) as caught:
+            load_feature(path)
+        assert caught.value.code == "nonfinite_embedding"
+
+
+def test_load_feature_rejects_wrong_dtype(tmp_path):
+    path = tmp_path / "float64.npy"
+    np.save(path, np.zeros(512, dtype=np.float64))
+    with pytest.raises(FeatureError) as caught:
+        load_feature(path)
+    assert caught.value.code == "schema_invalid"
+
+
+def test_load_feature_rejects_object_array(tmp_path):
+    path = tmp_path / "object.npy"
+    np.save(path, np.array([{"embedding": 1}], dtype=object))
+    with pytest.raises(FeatureError) as caught:
+        load_feature(path)
+    assert caught.value.code == "schema_invalid"

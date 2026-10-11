@@ -225,6 +225,84 @@ def test_invalid_source_writes_nothing(tmp_path):
     assert list(root.rglob("*.mp3")) == [] if root.exists() else True
 
 
+def test_malformed_wav_and_flac_are_rejected_without_partial_state(tmp_path):
+    root = tmp_path / "data"
+    incoming = tmp_path / "in"
+    raw = _mp3(incoming / "disquiet.mp3", b"raw-bytes")
+    raw_before = raw.read_bytes()
+    config = _config(tmp_path / "p01.json", root)
+    payloads = {
+        ".wav": b"RIFF" + b"\x00" * 24,
+        ".flac": b"fLaC" + b"\x00" * 24,
+    }
+    for suffix, payload in payloads.items():
+        decoded = incoming / f"disquiet{suffix}"
+        decoded.write_bytes(payload)
+        with pytest.raises(MusicPrefError) as caught:
+            ingest(config, _request(root, DISQUIET, raw, decoded))
+        assert caught.value.code == "invalid_source"
+        assert caught.value.field == "relative_path"
+        assert "Libsndfile" not in caught.value.remediation
+        assert "Format not recognised" not in caught.value.remediation
+        assert decoded.read_bytes() == payload
+        assert raw.read_bytes() == raw_before
+    assert not root.exists()
+
+
+def test_cli_rejects_malformed_decoded_audio(tmp_path, capsys):
+    root = tmp_path / "data"
+    incoming = tmp_path / "in"
+    raw = _mp3(incoming / "disquiet.mp3", b"raw-bytes")
+    raw_before = raw.read_bytes()
+    decoded = incoming / "disquiet.wav"
+    payload = b"RIFF" + b"\x00" * 24
+    decoded.write_bytes(payload)
+    config_path = write_config(
+        tmp_path / "p01.json",
+        root,
+        rights_policy="research_only",
+        level_matched=True,
+        audio={
+            "excerpt_seconds": 10,
+            "sample_rate": 48000,
+            "channels": 1,
+            "normalization_profile": "gain_lufs_v1",
+        },
+    )
+    code = main(
+        [
+            "ingest",
+            "--config",
+            str(config_path),
+            "--source-uri",
+            DISQUIET,
+            "--raw",
+            str(raw),
+            "--decoded",
+            str(decoded),
+            "--acquired-at",
+            ACQUIRED,
+            "--decode-tool",
+            "ffmpeg",
+            "--decode-version",
+            "7.1",
+            "--decode-command",
+            COMMAND,
+        ]
+    )
+    assert code == 1
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert "Traceback" not in captured.err
+    assert "Libsndfile" not in captured.err
+    error = json.loads(captured.err)
+    assert error["code"] == "invalid_source"
+    assert "WAV" in error["remediation"]
+    assert raw.read_bytes() == raw_before
+    assert decoded.read_bytes() == payload
+    assert not root.exists()
+
+
 def test_tracks_stay_distinct_until_a_reviewed_relationship(tmp_path):
     root = tmp_path / "data"
     incoming = tmp_path / "in"

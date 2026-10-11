@@ -188,12 +188,26 @@ def load_dataset(root: Path) -> tuple[Dataset, list[ValidationIssue]]:
     return dataset, issues
 
 
+def _repeat_links_cycle(start: Judgment, judgments: dict[str, Judgment]) -> bool:
+    seen: set[str] = set()
+    current = start
+    while current.is_repeat_of:
+        if current.judgment_id in seen or len(seen) >= len(judgments):
+            return True
+        seen.add(current.judgment_id)
+        nxt = judgments.get(current.is_repeat_of)
+        if nxt is None:
+            return False
+        current = nxt
+    return False
+
+
 def check_references(dataset: Dataset, config: FoundationConfig) -> list[ValidationIssue]:
     issues: list[ValidationIssue] = []
     assets = {asset.asset_id: asset for asset in dataset.assets}
     briefs = {brief.brief_id: brief for brief in dataset.briefs}
     clips = {clip.clip_id: clip for clip in dataset.clips}
-    judgments = {judgment.judgment_id for judgment in dataset.judgments}
+    judgments = {judgment.judgment_id: judgment for judgment in dataset.judgments}
     for asset in dataset.assets:
         for parent_id in asset.parent_asset_ids:
             if parent_id not in assets:
@@ -246,10 +260,62 @@ def check_references(dataset: Dataset, config: FoundationConfig) -> list[Validat
                     "pair_id must be the unordered pair of clip ids, lower then higher, joined by '::'.",
                 )
             )
-        if judgment.is_repeat_of and judgment.is_repeat_of not in judgments:
+        if not judgment.is_repeat_of:
+            continue
+        original = judgments.get(judgment.is_repeat_of)
+        if judgment.is_repeat_of == judgment.judgment_id:
             issues.append(
-                error(judgment.judgment_id, "is_repeat_of", "missing_reference", "Repeat judgments must point at an existing judgment.")
+                error(judgment.judgment_id, "is_repeat_of", "invalid_repeat", "A judgment cannot repeat itself.")
             )
+        elif original is None:
+            issues.append(
+                error(
+                    judgment.judgment_id,
+                    "is_repeat_of",
+                    "missing_reference",
+                    "Repeat judgments must point at an existing judgment.",
+                )
+            )
+        else:
+            if canonical_pair_id(judgment.clip_a_id, judgment.clip_b_id) != canonical_pair_id(
+                original.clip_a_id, original.clip_b_id
+            ):
+                issues.append(
+                    error(
+                        judgment.judgment_id,
+                        "is_repeat_of",
+                        "invalid_repeat",
+                        "A repeat must use the same unordered clip pair.",
+                    )
+                )
+            if judgment.brief_id != original.brief_id:
+                issues.append(
+                    error(
+                        judgment.judgment_id,
+                        "is_repeat_of",
+                        "invalid_repeat",
+                        "A repeat must use the same creative brief.",
+                    )
+                )
+            if judgment.listener_id != original.listener_id:
+                issues.append(
+                    error(
+                        judgment.judgment_id,
+                        "is_repeat_of",
+                        "invalid_repeat",
+                        "A repeat must use the same listener.",
+                    )
+                )
+            # v0.1 is silent on chains and forward refs; a cycle has no original.
+            if _repeat_links_cycle(judgment, judgments):
+                issues.append(
+                    error(
+                        judgment.judgment_id,
+                        "is_repeat_of",
+                        "invalid_repeat",
+                        "Repeat links must not form a cycle.",
+                    )
+                )
     return issues
 
 

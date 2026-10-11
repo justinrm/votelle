@@ -361,7 +361,14 @@ def ingest(config, request: IngestRequest) -> AcquisitionReceipt:
         )
     if suffix not in {".wav", ".flac"}:
         raise MusicPrefError("invalid_source", "Decoded derivative must be WAV or FLAC.", field="relative_path")
-    info = sf.info(decoded)
+    try:
+        info = sf.info(decoded)
+    except sf.LibsndfileError as exc:
+        raise MusicPrefError(
+            "invalid_source",
+            "Decoded file is not a readable WAV or FLAC. Decode to a new file and leave the MP3 unchanged.",
+            field="relative_path",
+        ) from exc
     audio, sample_rate = read_audio(decoded)
     if info.format not in {"WAV", "FLAC"} or info.frames != audio.shape[0] or info.samplerate != sample_rate:
         raise MusicPrefError(
