@@ -2,7 +2,7 @@
 
 This file binds every coding agent on a clone of this repository, including Cursor, Claude Code, Codex, and GitHub Copilot. Research protocol v0.1. The tree is the offline data foundation for preference research, not a trained music evaluator.
 
-Read `README.md` and `docs/STATUS.md` before changing the tree. Then read the source and tests for the behavior you are changing, and the decision record that covers it. Load only the research note the task needs.
+Before changing the tree, read the source and tests for the behavior you are changing, and the decision record that covers it. Load only the research note the task needs. Read `README.md` when the change affects the public contract or the quick start. Read `docs/STATUS.md` when the change affects recorded implementation status.
 
 ## Environment
 
@@ -16,7 +16,7 @@ PyTorch and Transformers are not dependencies of this environment. Do not add th
 
 ## Check
 
-A change is checked from the repository root:
+A change to source, tests, configs, or schemas is checked from the repository root. Skip this sequence for a documentation-only or Cursor-configuration edit.
 
 ```bash
 uv run python tests/fixtures/build.py --dest tests/fixtures/pilot --families 20
@@ -80,7 +80,7 @@ Open risks that are not decisions: `docs/archive/research-v0.1/09_Research_Risks
 
 ## Graphify
 
-Graphify is optional. Contributing does not require it. When the CLI is installed and cross-file tracing would help, use one focused command: `graphify query "<question>"`, `graphify path "<A>" "<B>"`, or `graphify explain "<concept>"`. Verify every relationship in the source file. Do not load `graphify-out/graph.json` or `graphify-out/GRAPH_REPORT.md` in full. After a structural code change, refresh with `graphify update .`. Do not install Torch or Transformers to refresh the graph.
+Graphify is optional. Contributing does not require it. When the CLI is installed and cross-file tracing would help, use one focused command: `graphify query "<question>"`, `graphify path "<A>" "<B>"`, or `graphify explain "<concept>"`. Do not run Graphify before every file read. Verify every relationship in the source file. Do not load `graphify-out/graph.json` or `graphify-out/GRAPH_REPORT.md` in full. After a structural code change, refresh with `graphify update .`. Do not install Torch or Transformers to refresh the graph.
 
 ## Finish
 

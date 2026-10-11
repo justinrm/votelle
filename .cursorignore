@@ -33,6 +33,7 @@ __pycache__/
 /cache/
 /runs/
 /checkpoints/
+/dist/
 *.log
 wandb/
 mlruns/

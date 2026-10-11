@@ -1,0 +1,16 @@
+---
+description: Protocol and authority limits when editing research notes, decisions, status, or project direction.
+globs: docs/research/**/*.md,docs/decisions/**/*.md,docs/STATUS.md,docs/PROJECT_DIRECTION.md
+alwaysApply: false
+---
+
+# Research edits
+
+Follow the authority order in `AGENTS.md` and `docs/research/README.md`. Do not rewrite a research note so it matches the code.
+
+- Open the note this edit changes, plus the decision record that covers it. Do not open the other research notes.
+- `docs/archive/` overrides nothing. Open one archive file only for a citation or a contradiction.
+- Excerpt length, grouping, rights, and label meaning change only with a new protocol version.
+- `docs/PROJECT_DIRECTION.md` does not expand protocol v0.1.
+- Update `docs/STATUS.md` only when implementation progress actually changes.
+- Fixture success is not evidence of preference prediction.

@@ -1,0 +1,14 @@
+---
+description: Keep context small and match verification to the change. AGENTS.md stays the project authority.
+alwaysApply: true
+---
+
+# Efficiency
+
+`AGENTS.md` is already in context. Do not read it again.
+
+Before editing, open the source and tests for the behavior you are changing, and the one "What to open" row that matches the task. Skip the other rows. Read `README.md` only when the public contract or quick start changes. Read `docs/STATUS.md` only when recorded status changes. Load one research note when the task needs it.
+
+Do not read `docs/archive/` into context except for a citation, a contradiction, or provenance. Do not read files under `graphify-out/` into context. Graphify is optional: one focused `query`, `path`, or `explain` when a cross-file trace helps. Do not run it before every file read.
+
+Run the `AGENTS.md` check sequence when source, tests, configs, or schemas change. Skip it for a documentation-only or Cursor-configuration edit.
